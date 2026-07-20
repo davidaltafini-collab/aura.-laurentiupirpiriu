@@ -78,7 +78,7 @@ export default function ProjectDetails() {
       </nav>
 
       {/* Hero */}
-      <section className="h-screen w-[95vw] mx-auto pt-[2.5vh] relative">
+      <section className="h-[100svh] w-[95vw] mx-auto pt-[2.5svh] relative">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

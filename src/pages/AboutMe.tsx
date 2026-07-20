@@ -41,7 +41,7 @@ export default function AboutMe() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-24 md:pt-48 px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-12 md:gap-16 items-center min-h-[90vh]">
+      <section className="pt-24 md:pt-48 px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-12 md:gap-16 items-center min-h-[90svh]">
         <div className="w-full md:w-1/2 order-2 md:order-1">
           <motion.div
              initial={{ opacity: 0, y: 30 }}
