@@ -49,7 +49,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="h-[95svh] w-[95vw] mx-auto mt-[2.5svh] relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
+      <section className="h-[95vh] w-[95vw] mx-auto mt-[2.5vh] relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
         <img
           src="/placeholders/wedding-2.jpg"
           alt="Wedding couple"
