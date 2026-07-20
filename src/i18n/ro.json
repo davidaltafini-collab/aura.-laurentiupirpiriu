@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "about": "Despre",
+    "work": "Lucrări",
+    "contact": "Contact",
+    "bookNow": "Rezervă"
+  },
+  "home": {
+    "heroTitle1": "Romanță",
+    "heroTitle2": "Cinematică",
+    "heroSubtitle": "Transformăm cele mai prețioase momente ale voastre prin fotografie și cinematografie artistică de nuntă, inclusiv filmări cu drona.",
+    "aboutHeading": "Surprindem nevăzutul, efemerul, eternul.",
+    "aboutBody": "Cu bază în inima munților, călătorim în toată lumea pentru a documenta povești de dragoste cu o abordare editorială, firească. Folosind drone și camere de cinema de ultimă generație, amintirile voastre devin artă atemporală.",
+    "workHeading1": "Lucrări",
+    "workHeading2": "Selectate",
+    "viewArchive": "Vezi arhiva",
+    "viewProject": "Vezi proiectul",
+    "contactHeading1": "Hai să creăm",
+    "contactHeading2": "magie.",
+    "contactSubtitle": "Rezervări deschise pentru 2027, oriunde în lume. Scrie-ne ca să verifici disponibilitatea și să primești ghidul nostru de pachete."
+  },
+  "contactForm": {
+    "namePlaceholder": "Numele tău",
+    "emailPlaceholder": "Emailul tău",
+    "phonePlaceholder": "Telefon (opțional)",
+    "eventDatePlaceholder": "Data evenimentului (opțional)",
+    "messagePlaceholder": "Povestește-ne pe scurt despre evenimentul vostru",
+    "submit": "Trimite cererea",
+    "submitting": "Se trimite...",
+    "successTitle": "Mulțumim! Am primit cererea ta.",
+    "successBody": "Laurentiu îți va răspunde în curând, direct pe email.",
+    "genericError": "A apărut o eroare. Încearcă din nou."
+  },
+  "footer": {
+    "home": "Acasă",
+    "about": "Despre",
+    "archive": "Arhivă",
+    "contact": "Contact",
+    "admin": "Admin",
+    "copyright": "© {{year}} Aura Cinematography"
+  },
+  "about": {
+    "kicker": "Filmmaker și cinematograf de drone independent, cu ochi pentru nevăzut.",
+    "bio1": "Cred că fiecare poveste de dragoste are propriul ritm și limbaj vizual. De peste un deceniu documentez nunți high-end din toată lumea, îmbinând tehnici cinematice cu observație documentară, autentică.",
+    "bio2": "Abordarea mea e firească — vreau să fiți pe deplin prezenți în momentele voastre, în timp ce eu le surprind de la sol și din aer. Fără pozat stânjenitor, doar conexiune reală, cadrată cu măiestrie.",
+    "cta": "Ia legătura"
+  },
+  "archive": {
+    "kicker": "Arhivă",
+    "allProjects": "Toate proiectele",
+    "viewCaseStudy": "Vezi studiul de caz"
+  },
+  "projectDetails": {
+    "notFoundTitle": "Proiectul nu a fost găsit",
+    "notFoundCta": "Înapoi acasă",
+    "backToArchive": "Înapoi la arhivă",
+    "backToWork": "Înapoi la lucrări",
+    "nextProject": "Proiectul următor"
+  },
+  "faq": {
+    "heading": "Întrebări frecvente"
+  },
+  "areasServed": {
+    "heading": "Zone deservite"
+  }
+}

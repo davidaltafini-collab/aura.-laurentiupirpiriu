@@ -1,0 +1,6 @@
+{
+  "name": "Aura | Wedding & Drone Cinematography",
+  "description": "Premium landing page for a high-end wedding and drone photographer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "about": "About",
+    "work": "Work",
+    "contact": "Contact",
+    "bookNow": "Book Now"
+  },
+  "home": {
+    "heroTitle1": "Cinematic",
+    "heroTitle2": "Romance",
+    "heroSubtitle": "Elevating your most precious moments through artistic wedding & drone cinematography.",
+    "aboutHeading": "We capture the unseen, the fleeting, the eternal.",
+    "aboutBody": "Based in the heart of the mountains, we travel worldwide to document love stories with an editorial, frictionless approach. Using state-of-the-art drones and cinema cameras, your memories are crafted into timeless art.",
+    "workHeading1": "Selected",
+    "workHeading2": "Works",
+    "viewArchive": "View Archive",
+    "viewProject": "View Project",
+    "contactHeading1": "Let's create",
+    "contactHeading2": "magic.",
+    "contactSubtitle": "Now booking for 2027 worldwide. Reach out to check availability and request our investment guide."
+  },
+  "contactForm": {
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "Your email",
+    "phonePlaceholder": "Phone (optional)",
+    "eventDatePlaceholder": "Event date (optional)",
+    "messagePlaceholder": "Tell us a bit about your event",
+    "submit": "Send inquiry",
+    "submitting": "Sending...",
+    "successTitle": "Thank you! We've received your inquiry.",
+    "successBody": "Laurentiu will get back to you soon, directly by email.",
+    "genericError": "Something went wrong. Please try again."
+  },
+  "footer": {
+    "home": "Home",
+    "about": "About",
+    "archive": "Archive",
+    "contact": "Contact",
+    "admin": "Admin",
+    "copyright": "© {{year}} Aura Cinematography"
+  },
+  "about": {
+    "kicker": "Independent filmmaker and drone cinematographer with an eye for the unseen.",
+    "bio1": "I believe that every love story has its own unique rhythm and visual language. For over a decade, I've been documenting high-end weddings across the globe, blending cinematic techniques with raw, documentary-style observation.",
+    "bio2": "My approach is frictionless — I want you to be fully present in your moments while I capture them from the ground and the sky. No awkward posing, just genuine connection, artfully framed.",
+    "cta": "Get in Touch"
+  },
+  "archive": {
+    "kicker": "Archive",
+    "allProjects": "All Projects",
+    "viewCaseStudy": "View Case Study"
+  },
+  "projectDetails": {
+    "notFoundTitle": "Project Not Found",
+    "notFoundCta": "Return to Home",
+    "backToArchive": "Back to archive",
+    "backToWork": "Back to work",
+    "nextProject": "Next Project"
+  },
+  "faq": {
+    "heading": "Frequently Asked Questions"
+  },
+  "areasServed": {
+    "heading": "Areas We Serve"
+  }
+}
