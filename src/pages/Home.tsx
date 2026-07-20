@@ -36,7 +36,7 @@ export default function Home() {
         ]}
       />
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
+      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white transform-gpu will-change-transform">
         <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter">AURA.</Link>
         <div className="hidden md:flex gap-8 font-medium text-sm tracking-wide uppercase">
           <a href="#about" className="hover:opacity-60 transition-opacity">{t('nav.about')}</a>
@@ -49,7 +49,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="h-[95vh] w-[95vw] mx-auto mt-[2.5vh] relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
+      <section className="h-[95svh] w-[95vw] mx-auto mt-[2.5svh] relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
         <img
           src="/placeholders/wedding-2.jpg"
           alt="Wedding couple"

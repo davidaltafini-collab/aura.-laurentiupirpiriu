@@ -33,7 +33,7 @@ export default function AboutMe() {
         ])}
       />
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
+      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white transform-gpu will-change-transform">
         <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
         <Link to={lp('/')} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase hover:opacity-60 transition-opacity">
           <ArrowLeft size={16} /> {t('projectDetails.backToWork')}
@@ -41,7 +41,7 @@ export default function AboutMe() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-24 md:pt-48 px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-12 md:gap-16 items-center min-h-[90vh]">
+      <section className="pt-24 md:pt-48 px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-12 md:gap-16 items-center min-h-[90svh]">
         <div className="w-full md:w-1/2 order-2 md:order-1">
           <motion.div
              initial={{ opacity: 0, y: 30 }}

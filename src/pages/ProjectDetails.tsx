@@ -70,7 +70,7 @@ export default function ProjectDetails() {
         ]}
       />
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
+      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white transform-gpu will-change-transform">
         <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
         <Link to={backLink} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase hover:opacity-60 transition-opacity">
           <ArrowLeft size={16} /> <span>{backText}</span>
@@ -78,7 +78,7 @@ export default function ProjectDetails() {
       </nav>
 
       {/* Hero */}
-      <section className="h-screen w-[95vw] mx-auto pt-[2.5vh] relative">
+      <section className="h-[100svh] w-[95vw] mx-auto pt-[2.5svh] relative">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
