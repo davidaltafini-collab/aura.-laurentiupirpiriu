@@ -69,8 +69,8 @@ export default function FloatingAboutButton() {
           
           {/* Center Avatar */}
           <div className="absolute w-[60%] h-[60%] rounded-full bg-[#f4f4f5] overflow-hidden flex items-center justify-center z-10 pointer-events-none">
-             <img 
-                src="https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?q=80&w=400&auto=format&fit=crop" 
+             <img
+                src="/laurentiu.png"
                 alt="Laurentiu"
                 className="w-full h-full object-cover"
              />

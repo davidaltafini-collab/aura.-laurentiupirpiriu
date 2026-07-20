@@ -76,7 +76,7 @@ export default function AboutMe() {
             className="aspect-[3/4] w-full rounded-[2rem] overflow-hidden shadow-2xl relative"
           >
             <img
-              src="https://images.unsplash.com/photo-1607346256330-dee7af15f7c5?q=80&w=2000&auto=format&fit=crop"
+              src="/laurentiu.png"
               alt="Laurentiu Pirpiriu - Cinematographer"
               className="w-full h-full object-cover"
             />
