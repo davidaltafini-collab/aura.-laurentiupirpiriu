@@ -51,7 +51,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="h-[95vh] w-[95vw] mx-auto mt-[2.5vh] relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
         <img
-          src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2938&auto=format&fit=crop"
+          src="/placeholders/wedding-2.jpg"
           alt="Wedding couple"
           className="absolute inset-0 w-full h-full object-cover scale-105"
         />
@@ -109,7 +109,7 @@ export default function Home() {
               className="aspect-[4/5] w-full rounded-[2rem] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] relative"
             >
               <img
-                src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop"
+                src="/placeholders/wedding-4.jpg"
                 alt="Photographer"
                 className="w-full h-full object-cover"
               />
@@ -122,7 +122,7 @@ export default function Home() {
               className="absolute -bottom-6 -right-6 md:-bottom-10 md:-left-20 aspect-square w-40 md:w-64 rounded-full overflow-hidden shadow-2xl border-4 border-[#f8f8f7]"
             >
               <img
-                src="https://images.unsplash.com/photo-1579904229158-b12a81282be3?q=80&w=2070&auto=format&fit=crop"
+                src="/placeholders/wedding-4.jpg"
                 alt="Drone detail"
                 className="w-full h-full object-cover"
               />
@@ -177,7 +177,7 @@ export default function Home() {
         <div className="max-w-[95vw] mx-auto bg-black text-white rounded-[2rem] md:rounded-[4rem] p-8 md:p-24 relative overflow-hidden shadow-2xl flex flex-col md:flex-row justify-between items-center gap-12 md:gap-16">
 
           <div className="absolute inset-0 opacity-20 pointer-events-none">
-             <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop" alt="texture" className="w-full h-full object-cover" />
+             <img src="/placeholders/wedding-7.jpg" alt="texture" className="w-full h-full object-cover" />
           </div>
 
           <div className="relative z-10 w-full md:w-3/5">

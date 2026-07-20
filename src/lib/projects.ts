@@ -86,7 +86,7 @@ export async function createProject(): Promise<Project> {
       title_en: 'New Project',
       location: 'Locație',
       event_date: 'Dată',
-      cover_image_url: 'https://images.unsplash.com/photo-1518118014377-ceac5b906f0e?q=80&w=2070&auto=format&fit=crop',
+      cover_image_url: '/placeholders/wedding-2.jpg',
       gallery_image_urls: [],
       description_ro: 'Descrierea proiectului vine aici.',
       description_en: 'Project description goes here.',

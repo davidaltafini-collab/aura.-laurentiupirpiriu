@@ -18,7 +18,7 @@ export const BUSINESS = {
   sameAs: [] as string[], // TODO: linkuri Instagram/Facebook/YouTube reale
 };
 
-const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1600&auto=format&fit=crop';
+const DEFAULT_OG_IMAGE = '/placeholders/wedding-2.jpg';
 
 export function photographyBusinessJsonLd(siteUrl: string) {
   return {

@@ -8,3 +8,6 @@ coverage/
 !.env.example
 .claude/settings.local.json
 .impeccable/
+
+.vercel
+.env*
