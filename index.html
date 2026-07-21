@@ -22,6 +22,27 @@
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1600&auto=format&fit=crop" />
   </head>
   <body>
+    <script>
+      // Înălțime de viewport ÎNGHEȚATĂ (--vh = 1% din înălțime, măsurată o dată
+      // la încărcare). Necesară pentru că pe Chrome/Firefox de iOS unitatea svh
+      // nu e implementată corect și se comportă ca dvh (se recalculează când
+      // barele browserului apar/dispar la scroll), ceea ce redimensiona
+      // secțiunile hero și împingea toată pagina. Pe touch re-măsurăm DOAR când
+      // se schimbă lățimea (rotirea ecranului) — mișcarea barelor schimbă doar
+      // înălțimea și e ignorată. Pe desktop re-măsurăm la orice resize, ca
+      // fereastra redimensionată să se comporte exact ca până acum.
+      (function () {
+        var touch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+        var w = innerWidth;
+        function set() {
+          document.documentElement.style.setProperty('--vh', innerHeight * 0.01 + 'px');
+        }
+        set();
+        addEventListener('resize', function () {
+          if (!touch || innerWidth !== w) { w = innerWidth; set(); }
+        });
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

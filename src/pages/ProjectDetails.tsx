@@ -78,7 +78,7 @@ export default function ProjectDetails() {
       </nav>
 
       {/* Hero */}
-      <section className="h-[100svh] w-[95vw] mx-auto pt-[2.5svh] relative">
+      <section className="h-[calc(var(--vh,1svh)*100)] w-[95vw] mx-auto pt-[calc(var(--vh,1svh)*2.5)] relative">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -194,7 +194,7 @@ export default function ProjectDetails() {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               src={project.gallery[lightboxIndex]}
               alt={`Gallery ${lightboxIndex}`}
-              className="max-w-[90vw] max-h-[90svh] object-contain"
+              className="max-w-[90vw] max-h-[calc(var(--vh,1svh)*90)] object-contain"
               onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
