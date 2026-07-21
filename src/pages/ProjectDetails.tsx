@@ -1,13 +1,14 @@
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, ArrowRight, MapPin, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProjects } from '../hooks/useProjects';
 import { useLocale } from '../hooks/useLocale';
 import { useSiteUrl } from '../hooks/useSiteUrl';
 import { useLocalizedPath } from '../hooks/useLocalizedPath';
+import { useHeroParallax } from '../hooks/useHeroParallax';
 import { projectTitle, projectDescription } from '../data';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import { breadcrumbJsonLd, projectJsonLd } from '../lib/seoSchemas';
@@ -33,18 +34,9 @@ export default function ProjectDetails() {
     window.scrollTo(0, 0);
   }, []);
 
-  // Zoom lent pe poza de cover, legat de scroll — vezi comentariul din Home.tsx.
-  // Pornește de la scale(1), ca aspectul în repaus să rămână exact ca până acum.
-  // Hook-urile stau înaintea return-urilor timpurii de mai jos (regula hooks).
-  const heroRef = useRef<HTMLElement>(null);
-  const reduceMotion = useReducedMotion();
-  const { scrollY } = useScroll();
-  const heroScale = useTransform(scrollY, y => {
-    if (reduceMotion) return 1;
-    const h = heroRef.current?.offsetHeight || 800;
-    const progress = Math.min(Math.max(y / h, 0), 1);
-    return 1 + progress * 0.13;
-  });
+  // Pornește de la scale(1), scara pe care o avea deja poza în repaus.
+  // Hook-ul stă înaintea return-urilor timpurii de mai jos (regula hooks).
+  const { ref: heroRef, scale: heroScale, y: heroY } = useHeroParallax(1, 0.3, 0.11);
 
   if (loading) {
     return <div className="min-h-svh" />;
@@ -101,7 +93,7 @@ export default function ProjectDetails() {
           <motion.img
             src={project.coverImage}
             alt={projectTitle(project, locale)}
-            style={{ scale: heroScale }}
+            style={{ scale: heroScale, y: heroY }}
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/30" />

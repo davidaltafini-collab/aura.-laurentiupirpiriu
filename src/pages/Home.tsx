@@ -1,5 +1,4 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
+import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +6,7 @@ import { useProjects } from '../hooks/useProjects';
 import { useLocale } from '../hooks/useLocale';
 import { useSiteUrl } from '../hooks/useSiteUrl';
 import { useLocalizedPath } from '../hooks/useLocalizedPath';
+import { useHeroParallax } from '../hooks/useHeroParallax';
 import { projectTitle } from '../data';
 import Footer from '../components/Footer';
 import ContactForm from '../components/ContactForm';
@@ -25,21 +25,8 @@ export default function Home() {
   const lp = useLocalizedPath();
   const featuredProjects = projects.filter(p => p.featured);
 
-  // Zoom lent pe poza din hero, legat de scroll. Se aplică pe `transform`, care
-  // NU afectează layout-ul — deci nu poate împinge conținutul, spre deosebire de
-  // vechiul efect, care era de fapt containerul care își schimba înălțimea.
-  // Citim scrollY brut (poziția de scroll nu se schimbă când se mișcă barele
-  // browserului), nu geometria elementului față de viewport — altfel efectul ar
-  // tresări exact când apar/dispar barele.
-  const heroRef = useRef<HTMLElement>(null);
-  const reduceMotion = useReducedMotion();
-  const { scrollY } = useScroll();
-  const heroScale = useTransform(scrollY, y => {
-    if (reduceMotion) return 1.05;
-    const h = heroRef.current?.offsetHeight || 800;
-    const progress = Math.min(Math.max(y / h, 0), 1);
-    return 1.05 + progress * 0.13;
-  });
+  // Pornește de la scale-105, scara pe care o avea deja poza în repaus.
+  const { ref: heroRef, scale: heroScale, y: heroY } = useHeroParallax(1.05, 0.32, 0.12);
 
   return (
     <div className="min-h-svh font-sans selection:bg-black selection:text-white">
@@ -70,7 +57,7 @@ export default function Home() {
         <motion.img
           src="/placeholders/wedding-2.jpg"
           alt="Wedding couple"
-          style={{ scale: heroScale }}
+          style={{ scale: heroScale, y: heroY }}
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/20" />
