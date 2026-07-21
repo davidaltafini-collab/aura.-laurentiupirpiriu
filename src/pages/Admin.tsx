@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, Reorder, useDragControls } from 'motion/react';
-import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2 } from 'lucide-react';
+import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2, Undo2 } from 'lucide-react';
 import { Project } from '../data';
 import { useProjects } from '../hooks/useProjects';
 import { useAuth } from '../context/AuthContext';
@@ -19,11 +19,13 @@ function ProjectReorderItem({
   isSelected,
   onSelect,
   onToggleFeatured,
+  onDragEnd,
 }: {
   project: Project;
   isSelected: boolean;
   onSelect: () => void;
   onToggleFeatured: (e: React.MouseEvent, project: Project) => void;
+  onDragEnd: () => void;
 }) {
   const dragControls = useDragControls();
 
@@ -32,6 +34,7 @@ function ProjectReorderItem({
       value={project}
       dragListener={false}
       dragControls={dragControls}
+      onDragEnd={onDragEnd}
       whileDrag={{ scale: 1.05, boxShadow: '0px 20px 40px rgba(0,0,0,0.1)', zIndex: 50, backgroundColor: '#ffffff', borderRadius: '2rem' }}
       onClick={onSelect}
       className={`text-left px-6 py-5 rounded-[2rem] transition-all duration-300 flex items-center gap-4 cursor-pointer select-none relative ${
@@ -48,11 +51,15 @@ function ProjectReorderItem({
         <button onClick={(e) => onToggleFeatured(e, project)} className={`hover:text-yellow-500 transition-colors ${project.featured ? 'text-yellow-400' : ''}`}>
           <Star size={18} fill={project.featured ? 'currentColor' : 'none'} />
         </button>
+        {/* touch-action:none e obligatoriu aici. Fără el, pe telefon browserul
+            interpretează gestul ca scroll de pagină și îl fură din mijlocul
+            drag-ului — de acolo venea reordonarea glitch-uită pe mobil.
+            Zona de atingere e mărită (p-3) ca să fie prinsă ușor cu degetul. */}
         <div
-          className="cursor-grab active:cursor-grabbing opacity-50 hover:opacity-100 p-2 -m-2"
+          className="cursor-grab active:cursor-grabbing opacity-50 hover:opacity-100 p-3 -m-1 touch-none"
           onPointerDown={(e) => dragControls.start(e)}
         >
-          <GripVertical size={16} />
+          <GripVertical size={20} />
         </div>
       </div>
     </Reorder.Item>
@@ -78,6 +85,13 @@ export default function Admin() {
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
+  // Poze marcate pentru ștergere, aplicate abia la Salvează. Vechea variantă
+  // ștergea instant la click, iar butonul stătea într-un overlay `opacity-0`
+  // care rămânea clickabil — pe telefon, unde nu există hover, atingeai poza și
+  // se ștergea fără avertisment și fără drum înapoi.
+  const [pendingPhotoRemovals, setPendingPhotoRemovals] = useState<string[]>([]);
+  const [savingPhotos, setSavingPhotos] = useState(false);
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
@@ -98,6 +112,9 @@ export default function Admin() {
   const selectedProject = projects.find(p => p.id === selectedProjectId);
 
   useEffect(() => {
+    // Marcajele aparțin proiectului curent — dacă rămâneau la schimbarea
+    // proiectului, un Salvează ulterior ar fi lovit galeria greșită.
+    setPendingPhotoRemovals([]);
     if (selectedProject) {
       setDraft({
         titleRo: selectedProject.titleRo,
@@ -185,10 +202,27 @@ export default function Admin() {
     }
   };
 
-  const handleDeletePhoto = async (photoUrl: string) => {
-    if (!selectedProject) return;
-    await updateProject(selectedProject.id, { gallery: selectedProject.gallery.filter(url => url !== photoUrl) });
-    await reload();
+  const togglePhotoRemoval = (photoUrl: string) => {
+    setPendingPhotoRemovals(prev =>
+      prev.includes(photoUrl) ? prev.filter(url => url !== photoUrl) : [...prev, photoUrl],
+    );
+  };
+
+  const applyPhotoRemovals = async () => {
+    if (!selectedProject || pendingPhotoRemovals.length === 0) return;
+    setSavingPhotos(true);
+    try {
+      await updateProject(selectedProject.id, {
+        gallery: selectedProject.gallery.filter(url => !pendingPhotoRemovals.includes(url)),
+      });
+      setPendingPhotoRemovals([]);
+      await reload();
+    } catch (err) {
+      console.error('[admin] Ștergerea pozelor a eșuat:', err);
+      alert('Nu am putut șterge pozele. Încearcă din nou.');
+    } finally {
+      setSavingPhotos(false);
+    }
   };
 
   const handleDeleteProject = async () => {
@@ -211,9 +245,27 @@ export default function Admin() {
     await reload();
   };
 
-  const handleReorder = async (newOrder: Project[]) => {
+  // onReorder se declanșează de zeci de ori în timpul unui singur drag. Varianta
+  // veche scria în baza de date la FIECARE declanșare: zeci de seturi de update-uri
+  // paralele care se suprapuneau, iar un răspuns întârziat de la o poziție
+  // intermediară suprascria ordinea mai nouă. De acolo venea „una în locul
+  // celeilalte". Acum starea locală se mișcă fluid, iar baza de date se scrie
+  // o singură dată, la finalul gestului.
+  const handleReorder = (newOrder: Project[]) => {
     setProjects(newOrder);
-    await reorderProjects(newOrder.map(p => p.id));
+  };
+
+  const persistOrder = async () => {
+    setSavingOrder(true);
+    try {
+      await reorderProjects(projects.map(p => p.id));
+    } catch (err) {
+      console.error('[admin] Salvarea ordinii a eșuat:', err);
+      alert('Nu am putut salva ordinea proiectelor. Se reîncarcă ordinea din baza de date.');
+      await reload();
+    } finally {
+      setSavingOrder(false);
+    }
   };
 
   const handleMarkLead = async (lead: Lead, status: string) => {
@@ -306,7 +358,14 @@ export default function Admin() {
         <div className="max-w-7xl mx-auto px-6 md:px-12 mt-12 flex flex-col lg:flex-row gap-12">
           {/* Sidebar */}
           <div className="lg:w-1/4">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-6">Proiecte</h3>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
+              Proiecte
+              {savingOrder && (
+                <span className="flex items-center gap-1.5 text-gray-400 normal-case tracking-normal font-medium">
+                  <Loader2 size={14} className="animate-spin" /> se salvează ordinea
+                </span>
+              )}
+            </h3>
             {loading ? (
               <div className="py-12 text-center text-gray-400">Se încarcă...</div>
             ) : (
@@ -318,6 +377,7 @@ export default function Admin() {
                     isSelected={selectedProjectId === project.id}
                     onSelect={() => trySelect(project.id)}
                     onToggleFeatured={toggleFeatured}
+                    onDragEnd={persistOrder}
                   />
                 ))}
               </Reorder.Group>
@@ -451,22 +511,64 @@ export default function Admin() {
                   </label>
                 </div>
 
+                {/* Bara de confirmare — apare doar când există poze marcate */}
+                {pendingPhotoRemovals.length > 0 && (
+                  <div className="mb-6 bg-red-50 border border-red-200 rounded-[2rem] p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p className="text-red-700 font-medium text-center sm:text-left">
+                      {pendingPhotoRemovals.length === 1
+                        ? 'O poză marcată pentru ștergere.'
+                        : `${pendingPhotoRemovals.length} poze marcate pentru ștergere.`}
+                    </p>
+                    <div className="flex gap-3 shrink-0">
+                      <button
+                        onClick={() => setPendingPhotoRemovals([])}
+                        disabled={savingPhotos}
+                        className="px-5 py-3 rounded-full font-medium text-gray-600 bg-white border border-gray-200 hover:text-black transition-colors disabled:opacity-50"
+                      >
+                        Anulează
+                      </button>
+                      <button
+                        onClick={applyPhotoRemovals}
+                        disabled={savingPhotos}
+                        className="px-5 py-3 rounded-full font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {savingPhotos ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                        {savingPhotos ? 'Se șterge...' : 'Șterge definitiv'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Gallery Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  {selectedProject.gallery.map((img, i) => (
-                    <div key={i} className="group relative aspect-[4/5] rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-                      <img src={img} alt={`Galerie ${i}`} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  {selectedProject.gallery.map((img, i) => {
+                    const marked = pendingPhotoRemovals.includes(img);
+                    return (
+                      <div
+                        key={i}
+                        className={`relative aspect-[4/5] rounded-[1.5rem] overflow-hidden shadow-sm transition-all duration-300 ${
+                          marked ? 'ring-4 ring-red-500 opacity-40' : 'hover:shadow-xl'
+                        }`}
+                      >
+                        <img src={img} alt={`Galerie ${i}`} className="w-full h-full object-cover" />
+                        {/* Butonul e mereu vizibil, nu ascuns în spatele unui hover:
+                            pe telefon hover-ul nu există, iar un overlay invizibil dar
+                            clickabil producea ștergeri accidentale. */}
                         <button
-                          onClick={() => handleDeletePhoto(img)}
-                          className="bg-white text-red-500 p-4 rounded-full hover:bg-red-500 hover:text-white hover:scale-110 transition-all shadow-lg"
-                          title="Șterge poza"
+                          onClick={() => togglePhotoRemoval(img)}
+                          className={`absolute top-3 right-3 p-3 rounded-full shadow-lg transition-colors ${
+                            marked
+                              ? 'bg-white text-gray-700 hover:bg-gray-100'
+                              : 'bg-black/60 text-white hover:bg-red-600'
+                          }`}
+                          title={marked ? 'Păstrează poza' : 'Marchează pentru ștergere'}
+                          aria-label={marked ? 'Păstrează poza' : 'Marchează poza pentru ștergere'}
                         >
-                          <Trash2 size={24} />
+                          {marked ? <Undo2 size={18} /> : <Trash2 size={18} />}
                         </button>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {selectedProject.gallery.length === 0 && (
                     <div className="col-span-full py-16 text-center text-gray-400 bg-white rounded-[2rem] border border-dashed border-gray-300">
                       Nicio poză în galeria acestui proiect. Adaugă una mai sus.
