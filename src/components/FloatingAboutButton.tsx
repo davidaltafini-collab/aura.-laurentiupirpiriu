@@ -8,53 +8,53 @@ export default function FloatingAboutButton() {
   const location = useLocation();
   const lp = useLocalizedPath();
   const [bottomOffset, setBottomOffset] = useState(0);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const offsetRef = useRef(0);
+
+  // Ancoră fixă, NEtransformată. Poziția ei nu se schimbă niciodată, deci e o
+  // referință de măsurare stabilă. Translate-ul se aplică pe div-ul dinăuntru.
+  //
+  // Varianta anterioară măsura chiar elementul animat și îi aduna înapoi
+  // offset-ul țintă. În timpul tranziției de 0.1s poziția randată e la mijlocul
+  // drumului, dar offset-ul citit era cel final — deci măsurătoarea ieșea
+  // greșită, genera un offset greșit, care genera altă măsurătoare greșită.
+  // Bucla asta de feedback era aruncătura în sus și tremuratul.
+  const anchorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let frame = 0;
 
     const measure = () => {
       frame = 0;
+      const anchor = anchorRef.current;
       const footer = document.querySelector('footer');
-      const el = wrapperRef.current;
-      if (!footer || !el) {
-        offsetRef.current = 0;
+      if (!anchor || !footer) {
         setBottomOffset(0);
         return;
       }
 
+      // Ancora e `fixed bottom-X`, deci marginea de jos a viewport-ului e
+      // marginea ei de jos plus distanța `bottom`. Nicio dependență de starea
+      // animației și niciun window.innerHeight.
+      const anchorRect = anchor.getBoundingClientRect();
+      const gap = parseFloat(getComputedStyle(anchor).bottom) || 0;
+      const viewportBottom = anchorRect.bottom + gap;
       const footerTop = footer.getBoundingClientRect().top;
 
-      // Marginea de jos a viewport-ului, dedusă din geometria butonului în loc
-      // de window.innerHeight: butonul e `fixed bottom-X`, deci marginea de jos
-      // a viewport-ului = marginea lui de jos în repaus + distanța `bottom`.
-      // Anulăm translate-ul deja aplicat ca să obținem poziția de repaus.
-      const restBottom = el.getBoundingClientRect().bottom + offsetRef.current;
-      const gap = parseFloat(getComputedStyle(el).bottom) || 0;
-      const viewportBottom = restBottom + gap;
-
-      const next = footerTop < viewportBottom ? viewportBottom - footerTop : 0;
-      offsetRef.current = next;
-      setBottomOffset(next);
+      setBottomOffset(footerTop < viewportBottom ? viewportBottom - footerTop : 0);
     };
 
-    // Măsurătoarea forțează layout; într-un rAF se face o singură dată per frame,
-    // nu la fiecare eveniment de scroll.
-    const handleScroll = () => {
+    // O singură măsurătoare per frame, ca să nu forțeze layout la fiecare event.
+    const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(measure);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll);
-
-    // Initial check
-    handleScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
 
     return () => {
       if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
     };
   }, [location.pathname]);
 
@@ -64,39 +64,40 @@ export default function FloatingAboutButton() {
 
   return (
     <div
-      ref={wrapperRef}
+      ref={anchorRef}
       className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50 pointer-events-none"
-      style={{ transform: `translateY(-${bottomOffset}px)`, transition: 'transform 0.1s ease-out' }}
     >
-      <Link to={lp('/about')} className="block group pointer-events-auto">
-        <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-300 shadow-2xl">
-          <div className="absolute inset-0 rounded-full bg-black"></div>
-          {/* Rotating Text */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 w-full h-full"
-          >
-            <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-              <path id="circlePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="none" />
-              <text fill="white" fontSize="10" fontWeight="bold" letterSpacing="0.25em" className="font-sans uppercase">
-                <textPath href="#circlePath" startOffset="0%">
-                  ABOUT ME • LAURENTIU PIRPIRIU •
-                </textPath>
-              </text>
-            </svg>
-          </motion.div>
+      <div style={{ transform: `translateY(-${bottomOffset}px)`, transition: 'transform 0.1s ease-out' }}>
+        <Link to={lp('/about')} className="block group pointer-events-auto">
+          <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-300 shadow-2xl">
+            <div className="absolute inset-0 rounded-full bg-black"></div>
+            {/* Rotating Text */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 w-full h-full"
+            >
+              <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+                <path id="circlePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="none" />
+                <text fill="white" fontSize="10" fontWeight="bold" letterSpacing="0.25em" className="font-sans uppercase">
+                  <textPath href="#circlePath" startOffset="0%">
+                    ABOUT ME • LAURENTIU PIRPIRIU •
+                  </textPath>
+                </text>
+              </svg>
+            </motion.div>
 
-          {/* Center Avatar */}
-          <div className="absolute w-[60%] h-[60%] rounded-full bg-[#f4f4f5] overflow-hidden flex items-center justify-center z-10 pointer-events-none">
-             <img
-                src="/laurentiu.png"
-                alt="Laurentiu"
-                className="w-full h-full object-cover"
-             />
+            {/* Center Avatar */}
+            <div className="absolute w-[60%] h-[60%] rounded-full bg-[#f4f4f5] overflow-hidden flex items-center justify-center z-10 pointer-events-none">
+               <img
+                  src="/laurentiu.png"
+                  alt="Laurentiu"
+                  className="w-full h-full object-cover"
+               />
+            </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+      </div>
     </div>
   );
 }

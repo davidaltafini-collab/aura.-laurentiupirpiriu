@@ -48,7 +48,7 @@ export default function Archive() {
       />
       {/* Nav */}
       <nav className="p-4 md:p-10 flex justify-between items-center bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
-        <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter hover:opacity-60 transition-opacity">
+        <Link to={lp('/')} className="font-display font-bold text-4xl md:text-5xl tracking-tighter hover:opacity-60 transition-opacity">
           AURA. <span className="text-gray-400 font-light tracking-normal text-lg md:text-xl ml-2">{t('archive.kicker')}</span>
         </Link>
         <Link to={lp('/')} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase text-gray-500 hover:text-black transition-colors">

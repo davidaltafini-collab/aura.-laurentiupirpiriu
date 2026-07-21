@@ -41,13 +41,13 @@ export default function Home() {
       />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
-        <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter">AURA.</Link>
+        <Link to={lp('/')} className="font-display font-bold text-4xl md:text-5xl tracking-tighter">AURA.</Link>
         <div className="hidden md:flex gap-8 font-medium text-sm tracking-wide uppercase">
           <a href="#about" className="hover:opacity-60 transition-opacity">{t('nav.about')}</a>
           <a href="#work" className="hover:opacity-60 transition-opacity">{t('nav.work')}</a>
           <a href="#contact" className="hover:opacity-60 transition-opacity">{t('nav.contact')}</a>
         </div>
-        <a href="#contact" className="bg-white text-black px-4 py-2 md:px-6 md:py-3 rounded-full font-medium text-xs md:text-sm tracking-wide uppercase hover:scale-105 transition-transform duration-300">
+        <a href="#contact" className="bg-white text-black px-7 py-4 md:px-10 md:py-5 rounded-full font-semibold text-base md:text-lg tracking-wide uppercase hover:scale-105 transition-transform duration-300">
           {t('nav.bookNow')}
         </a>
       </nav>
@@ -178,18 +178,18 @@ export default function Home() {
       <FaqSection items={HOME_FAQ} />
 
       {/* Contact CTA */}
-      <section id="contact" className="py-24 md:py-40 px-4 md:px-10">
-        <div className="max-w-[95vw] mx-auto bg-black text-white rounded-[2rem] md:rounded-[4rem] p-8 md:p-24 relative overflow-hidden shadow-2xl flex flex-col md:flex-row justify-between items-center gap-12 md:gap-16">
+      <section id="contact" className="py-16 md:py-40 px-4 md:px-10">
+        <div className="max-w-[95vw] mx-auto bg-black text-white rounded-[2rem] md:rounded-[4rem] p-6 md:p-24 relative overflow-hidden shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8 md:gap-16">
 
           <div className="absolute inset-0 opacity-20 pointer-events-none">
              <img src="/placeholders/wedding-7.jpg" alt="texture" className="w-full h-full object-cover" />
           </div>
 
           <div className="relative z-10 w-full md:w-3/5">
-            <h2 className="font-display text-5xl md:text-8xl font-bold tracking-tighter uppercase leading-[0.9]">
+            <h2 className="font-display text-4xl md:text-8xl font-bold tracking-tighter uppercase leading-[0.9]">
               {t('home.contactHeading1')}<br/>{t('home.contactHeading2')}
             </h2>
-            <p className="mt-8 text-xl text-gray-400 font-light max-w-md">
+            <p className="mt-4 md:mt-8 text-base md:text-xl text-gray-400 font-light max-w-md">
               {t('home.contactSubtitle')}
             </p>
           </div>

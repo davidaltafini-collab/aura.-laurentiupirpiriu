@@ -34,7 +34,7 @@ export default function AboutMe() {
       />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
-        <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
+        <Link to={lp('/')} className="font-display font-bold text-4xl md:text-5xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
         <Link to={lp('/')} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase hover:opacity-60 transition-opacity">
           <ArrowLeft size={16} /> {t('projectDetails.backToWork')}
         </Link>

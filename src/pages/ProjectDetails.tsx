@@ -29,10 +29,13 @@ export default function ProjectDetails() {
   const backLink = fromArchive ? lp('/archive') : lp('/');
   const backText = fromArchive ? t('projectDetails.backToArchive') : t('projectDetails.backToWork');
 
-  // Scroll to top on load
+  // Scroll to top on load. Dependența pe `id` e esențială: la „proiectul următor"
+  // ruta e aceeași (/project/:id), doar parametrul se schimbă, deci React Router
+  // NU remontează componenta. Cu [] efectul rula o singură dată și rămâneai jos
+  // în pagină, exact unde erai când ai dat click.
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [id]);
 
   // Pornește de la scale(1), scara pe care o avea deja poza în repaus.
   // Hook-ul stă înaintea return-urilor timpurii de mai jos (regula hooks).
@@ -76,7 +79,7 @@ export default function ProjectDetails() {
       />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
-        <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
+        <Link to={lp('/')} className="font-display font-bold text-4xl md:text-5xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
         <Link to={backLink} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase hover:opacity-60 transition-opacity">
           <ArrowLeft size={16} /> <span>{backText}</span>
         </Link>

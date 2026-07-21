@@ -69,14 +69,14 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:gap-4">
       <input
         type="text"
         placeholder={t('contactForm.namePlaceholder')}
         value={form.name}
         onChange={update('name')}
         required
-        className="w-full bg-white/10 border border-white/20 rounded-full px-8 py-5 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-lg"
+        className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg"
       />
       <input
         type="email"
@@ -84,7 +84,7 @@ export default function ContactForm() {
         value={form.email}
         onChange={update('email')}
         required
-        className="w-full bg-white/10 border border-white/20 rounded-full px-8 py-5 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-lg"
+        className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg"
       />
       <div className="flex flex-col sm:flex-row gap-4">
         <input
@@ -92,14 +92,21 @@ export default function ContactForm() {
           placeholder={t('contactForm.phonePlaceholder')}
           value={form.phone}
           onChange={update('phone')}
-          className="w-full bg-white/10 border border-white/20 rounded-full px-8 py-5 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-lg"
+          className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg"
         />
+        {/* type="date" deschide selectorul nativ al sistemului (iOS/Android/desktop).
+            `color-scheme: dark` e obligatoriu aici: fără el, controalele native ale
+            input-ului (textul, iconița de calendar, popup-ul) se randează pe schema
+            deschisă și devin ilizibile pe cardul negru. `min` blochează datele din
+            trecut — o nuntă nu se poate rezerva în urmă. */}
         <input
-          type="text"
-          placeholder={t('contactForm.eventDatePlaceholder')}
+          type="date"
+          aria-label={t('contactForm.eventDatePlaceholder')}
+          title={t('contactForm.eventDatePlaceholder')}
+          min={new Date().toISOString().split('T')[0]}
           value={form.eventDate}
           onChange={update('eventDate')}
-          className="w-full bg-white/10 border border-white/20 rounded-full px-8 py-5 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-lg"
+          className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg [color-scheme:dark]"
         />
       </div>
       <textarea
@@ -108,7 +115,7 @@ export default function ContactForm() {
         onChange={update('message')}
         required
         rows={3}
-        className="w-full bg-white/10 border border-white/20 rounded-[1.75rem] px-8 py-5 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-lg resize-none"
+        className="w-full bg-white/10 border border-white/20 rounded-[1.75rem] px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg resize-none"
       />
 
       <AnimatePresence>
@@ -127,7 +134,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="w-full bg-white text-black rounded-full px-8 py-5 font-semibold text-lg hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+        className="w-full bg-white text-black rounded-full px-6 py-4 md:px-8 md:py-5 font-semibold text-base md:text-lg hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
       >
         {status === 'submitting' ? t('contactForm.submitting') : t('contactForm.submit')}
         {status !== 'submitting' && <ArrowRight size={20} />}
