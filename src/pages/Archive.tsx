@@ -11,7 +11,6 @@ import { projectTitle } from '../data';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import { breadcrumbJsonLd } from '../lib/seoSchemas';
-import { scrollToTop } from '../lib/scroll';
 
 export default function Archive() {
   const { projects } = useProjects();
@@ -23,7 +22,7 @@ export default function Archive() {
   const [selectedProjectId, setSelectedProjectId] = useState(projects[0]?.id || '');
 
   useEffect(() => {
-    scrollToTop();
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {

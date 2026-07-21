@@ -13,7 +13,6 @@ import {
   uploadProjectImage,
 } from '../lib/projects';
 import { fetchLeads, updateLeadStatus, Lead } from '../lib/leads';
-import { scrollToTop } from '../lib/scroll';
 
 function ProjectReorderItem({
   project,
@@ -84,7 +83,7 @@ export default function Admin() {
   const [leadsLoading, setLeadsLoading] = useState(true);
 
   useEffect(() => {
-    scrollToTop();
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {

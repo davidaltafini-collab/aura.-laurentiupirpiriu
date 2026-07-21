@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLocalizedPath } from '../hooks/useLocalizedPath';
@@ -8,26 +8,35 @@ export default function FloatingAboutButton() {
   const location = useLocation();
   const lp = useLocalizedPath();
   const [bottomOffset, setBottomOffset] = useState(0);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
 
   useEffect(() => {
-    // Pe touch scroll-ul e pe #root, nu pe document (vezi index.css). Evenimentele
-    // de scroll pe un element NU fac bubble la window, deci ascultăm pe ambele —
-    // altfel butonul ar rămâne blocat pe mobil.
-    const scroller = document.getElementById('root');
     let frame = 0;
 
     const measure = () => {
       frame = 0;
       const footer = document.querySelector('footer');
-      if (!footer) {
+      const el = wrapperRef.current;
+      if (!footer || !el) {
+        offsetRef.current = 0;
         setBottomOffset(0);
         return;
       }
-      const footerRect = footer.getBoundingClientRect();
-      // window.innerHeight e stabil acum: barele browserului nu se mai ascund,
-      // pentru că documentul nu mai scrollează.
-      const windowHeight = window.innerHeight;
-      setBottomOffset(footerRect.top < windowHeight ? windowHeight - footerRect.top : 0);
+
+      const footerTop = footer.getBoundingClientRect().top;
+
+      // Marginea de jos a viewport-ului, dedusă din geometria butonului în loc
+      // de window.innerHeight: butonul e `fixed bottom-X`, deci marginea de jos
+      // a viewport-ului = marginea lui de jos în repaus + distanța `bottom`.
+      // Anulăm translate-ul deja aplicat ca să obținem poziția de repaus.
+      const restBottom = el.getBoundingClientRect().bottom + offsetRef.current;
+      const gap = parseFloat(getComputedStyle(el).bottom) || 0;
+      const viewportBottom = restBottom + gap;
+
+      const next = footerTop < viewportBottom ? viewportBottom - footerTop : 0;
+      offsetRef.current = next;
+      setBottomOffset(next);
     };
 
     // Măsurătoarea forțează layout; într-un rAF se face o singură dată per frame,
@@ -37,7 +46,6 @@ export default function FloatingAboutButton() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    scroller?.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll);
 
     // Initial check
@@ -46,7 +54,6 @@ export default function FloatingAboutButton() {
     return () => {
       if (frame) cancelAnimationFrame(frame);
       window.removeEventListener('scroll', handleScroll);
-      scroller?.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
   }, [location.pathname]);
@@ -57,6 +64,7 @@ export default function FloatingAboutButton() {
 
   return (
     <div
+      ref={wrapperRef}
       className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50 pointer-events-none"
       style={{ transform: `translateY(-${bottomOffset}px)`, transition: 'transform 0.1s ease-out' }}
     >

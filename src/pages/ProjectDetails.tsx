@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import { breadcrumbJsonLd, projectJsonLd } from '../lib/seoSchemas';
-import { scrollToTop } from '../lib/scroll';
 
 export default function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
@@ -31,7 +30,7 @@ export default function ProjectDetails() {
 
   // Scroll to top on load
   useEffect(() => {
-    scrollToTop();
+    window.scrollTo(0, 0);
   }, []);
 
   if (loading) {

@@ -9,7 +9,6 @@ import { useSiteUrl } from '../hooks/useSiteUrl';
 import { useLocale } from '../hooks/useLocale';
 import { useLocalizedPath } from '../hooks/useLocalizedPath';
 import { breadcrumbJsonLd } from '../lib/seoSchemas';
-import { scrollToTop } from '../lib/scroll';
 
 export default function AboutMe() {
   const { t } = useTranslation();
@@ -19,7 +18,7 @@ export default function AboutMe() {
   const lp = useLocalizedPath();
 
   useEffect(() => {
-    scrollToTop();
+    window.scrollTo(0, 0);
   }, []);
 
   return (

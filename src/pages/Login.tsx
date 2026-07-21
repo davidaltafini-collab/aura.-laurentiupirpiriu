@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { scrollToTop } from '../lib/scroll';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -14,7 +13,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    scrollToTop();
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
