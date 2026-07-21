@@ -12,8 +12,16 @@
   }
 }
 
-html {
-  scroll-behavior: smooth;
+/* Smooth scroll DOAR pe desktop (pointer fin). Pe touch trebuie să lipsească:
+   atunci când barele browserului apar/dispar la scroll, browserul corectează
+   programatic poziția de scroll ca să compenseze redimensionarea viewport-ului,
+   iar cu scroll-behavior:smooth corecția aia se ANIMEAZĂ — toată pagina alunecă
+   vizibil, „împinsă" de toolbar. Verificat pe cuberto.com: zero scroll-behavior
+   în tot CSS-ul lor; pe mobil scroll-ul e complet nativ, de-aia nu sare. */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 ::-webkit-scrollbar {
