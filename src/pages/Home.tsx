@@ -1,4 +1,5 @@
-import { motion } from 'motion/react';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +24,22 @@ export default function Home() {
   const location = useLocation();
   const lp = useLocalizedPath();
   const featuredProjects = projects.filter(p => p.featured);
+
+  // Zoom lent pe poza din hero, legat de scroll. Se aplică pe `transform`, care
+  // NU afectează layout-ul — deci nu poate împinge conținutul, spre deosebire de
+  // vechiul efect, care era de fapt containerul care își schimba înălțimea.
+  // Citim scrollY brut (poziția de scroll nu se schimbă când se mișcă barele
+  // browserului), nu geometria elementului față de viewport — altfel efectul ar
+  // tresări exact când apar/dispar barele.
+  const heroRef = useRef<HTMLElement>(null);
+  const reduceMotion = useReducedMotion();
+  const { scrollY } = useScroll();
+  const heroScale = useTransform(scrollY, y => {
+    if (reduceMotion) return 1.05;
+    const h = heroRef.current?.offsetHeight || 800;
+    const progress = Math.min(Math.max(y / h, 0), 1);
+    return 1.05 + progress * 0.13;
+  });
 
   return (
     <div className="min-h-svh font-sans selection:bg-black selection:text-white">
@@ -49,11 +66,12 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="h-[calc(var(--vh,1svh)*95)] w-[95vw] mx-auto mt-[calc(var(--vh,1svh)*2.5)] relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
-        <img
+      <section ref={heroRef} className="h-[calc(var(--vh,1svh)*95)] w-[95vw] mx-auto mt-[calc(var(--vh,1svh)*2.5)] relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
+        <motion.img
           src="/placeholders/wedding-2.jpg"
           alt="Wedding couple"
-          className="absolute inset-0 w-full h-full object-cover scale-105"
+          style={{ scale: heroScale }}
+          className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/20" />
 
