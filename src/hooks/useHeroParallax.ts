@@ -25,14 +25,19 @@ import { useScroll, useTransform, useReducedMotion } from 'motion/react';
  *                  hero-ului. E plafonată automat la 90% din surplusul disponibil
  *                  la momentul respectiv, ca poza să nu se desprindă niciodată de
  *                  marginea de sus, indiferent ce valori se aleg aici.
+ * @param span      pe ce fracțiune din înălțimea hero-ului se consumă efectul.
+ *                  Sub 1 înseamnă că se termină înainte ca hero-ul să iasă complet
+ *                  din ecran — esențial ca mișcarea să fie perceptibilă: întinsă
+ *                  pe toată înălțimea, deplasarea pe primii 200px de scroll e prea
+ *                  mică pentru a se observa.
  */
-export function useHeroParallax(restScale: number, zoom: number, drift: number) {
+export function useHeroParallax(restScale: number, zoom: number, drift: number, span = 0.55) {
   const ref = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
 
   const heightOf = () => ref.current?.offsetHeight || 800;
-  const progress = (y: number) => Math.min(Math.max(y / heightOf(), 0), 1);
+  const progress = (y: number) => Math.min(Math.max(y / (heightOf() * span), 0), 1);
 
   const scale = useTransform(scrollY, y =>
     reduceMotion ? restScale : restScale + progress(y) * zoom,

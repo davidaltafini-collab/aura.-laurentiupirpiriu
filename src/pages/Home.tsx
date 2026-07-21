@@ -26,7 +26,7 @@ export default function Home() {
   const featuredProjects = projects.filter(p => p.featured);
 
   // Pornește de la scale-105, scara pe care o avea deja poza în repaus.
-  const { ref: heroRef, scale: heroScale, y: heroY } = useHeroParallax(1.05, 0.32, 0.12);
+  const { ref: heroRef, scale: heroScale, y: heroY } = useHeroParallax(1.05, 0.38, 0.16);
 
   return (
     <div className="min-h-svh font-sans selection:bg-black selection:text-white">

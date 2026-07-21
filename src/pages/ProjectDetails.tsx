@@ -39,7 +39,7 @@ export default function ProjectDetails() {
 
   // Pornește de la scale(1), scara pe care o avea deja poza în repaus.
   // Hook-ul stă înaintea return-urilor timpurii de mai jos (regula hooks).
-  const { ref: heroRef, scale: heroScale, y: heroY } = useHeroParallax(1, 0.3, 0.11);
+  const { ref: heroRef, scale: heroScale, y: heroY } = useHeroParallax(1, 0.36, 0.15);
 
   if (loading) {
     return <div className="min-h-svh" />;

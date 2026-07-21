@@ -39,16 +39,40 @@ export default function ContactForm() {
         body: JSON.stringify({ ...form, sourcePage: window.location.pathname, locale }),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || t('contactForm.genericError'));
+      // Răspunsul poate să nu fie JSON: dacă funcția serverless nu e deployată
+      // sau a crăpat la pornire, Vercel întoarce o pagină HTML de eroare. Fără
+      // distincția asta, orice problemă arăta la fel — mesajul generic — și nu
+      // se putea afla dacă e endpoint lipsă, config greșită sau eroare de date.
+      const raw = await res.text();
+      let data: { error?: string } = {};
+      let isJson = true;
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch {
+        isJson = false;
+      }
+
+      if (!res.ok || !isJson) {
+        console.error('[contact] Trimitere eșuată', { status: res.status, isJson, raw: raw.slice(0, 500) });
+        if (!isJson) {
+          throw new Error(`Serverul a răspuns cu ${res.status} (răspuns non-JSON). Endpoint-ul /api/contact nu răspunde corect.`);
+        }
+        throw new Error(data.error || `${t('contactForm.genericError')} (cod ${res.status})`);
       }
 
       setStatus('success');
       setForm(initialState);
     } catch (err) {
+      console.error('[contact] Eroare la trimitere:', err);
       setStatus('error');
-      setErrorMessage(err instanceof Error ? err.message : t('contactForm.genericError'));
+      // Fetch aruncă TypeError doar când cererea nu ajunge deloc la server
+      // (offline, DNS, CORS) — merită distins de o eroare venită din server.
+      const isNetwork = err instanceof TypeError;
+      setErrorMessage(
+        isNetwork
+          ? 'Nu am putut contacta serverul. Verifică conexiunea la internet și încearcă din nou.'
+          : err instanceof Error ? err.message : t('contactForm.genericError'),
+      );
     }
   };
 
