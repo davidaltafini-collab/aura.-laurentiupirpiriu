@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { scrollToTop } from '../lib/scroll';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }, []);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen font-sans bg-[#f8f8f7] selection:bg-black selection:text-white flex flex-col">
+    <div className="min-h-svh font-sans bg-[#f8f8f7] selection:bg-black selection:text-white flex flex-col">
       {/* Nav */}
       <nav className="p-4 md:p-10 flex justify-between items-center bg-transparent z-50">
         <Link to="/" className="font-display font-bold text-xl md:text-2xl tracking-tighter hover:opacity-60 transition-opacity">

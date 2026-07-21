@@ -13,6 +13,7 @@ import {
   uploadProjectImage,
 } from '../lib/projects';
 import { fetchLeads, updateLeadStatus, Lead } from '../lib/leads';
+import { scrollToTop } from '../lib/scroll';
 
 function ProjectReorderItem({
   project,
@@ -83,7 +84,7 @@ export default function Admin() {
   const [leadsLoading, setLeadsLoading] = useState(true);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }, []);
 
   useEffect(() => {
@@ -226,7 +227,7 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen font-sans bg-[#f8f8f7] selection:bg-black selection:text-white pb-20">
+    <div className="min-h-svh font-sans bg-[#f8f8f7] selection:bg-black selection:text-white pb-20">
       {/* Nav */}
       <nav className="p-4 md:p-10 flex justify-between items-center bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
         <Link to="/" className="font-display font-bold text-xl md:text-2xl tracking-tighter">

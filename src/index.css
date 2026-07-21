@@ -30,3 +30,37 @@ body {
   overflow-x: hidden;
   width: 100%;
 }
+
+/* ---------------------------------------------------------------------------
+   Viewport stabil pe touch: scroll în container, nu în document.
+   ---------------------------------------------------------------------------
+   Barele browserului (bara de adrese sus, toolbar-ul jos) se ascund/apar DOAR
+   ca reacție la scroll-ul documentului principal. Când fac asta, viewport-ul
+   se redimensionează și toată pagina e împinsă în sus/jos.
+
+   Nu se poate rezolva cu unități CSS (svh/dvh/lvh) — acelea doar controlează
+   cât de mari sunt elementele, nu împiedică redimensionarea viewport-ului.
+
+   Singura soluție reală: documentul nu mai scrollează deloc. Scroll-ul se
+   mută pe #root. Astfel browserul nu mai are ce declanșa — barele rămân
+   permanent vizibile, viewport-ul nu se mai schimbă niciodată, pagina nu mai
+   sare. Aplicat doar pe touch, ca pe desktop să rămână scroll-ul nativ al
+   documentului (altfel s-ar strica navigarea cu tastatura).
+--------------------------------------------------------------------------- */
+@media (hover: none) and (pointer: coarse) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    /* Fără rubber-band la capete: și acela mișcă pagina sub deget. */
+    overscroll-behavior: none;
+  }
+
+  #root {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    scroll-behavior: smooth;
+  }
+}

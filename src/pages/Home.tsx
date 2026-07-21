@@ -25,7 +25,7 @@ export default function Home() {
   const featuredProjects = projects.filter(p => p.featured);
 
   return (
-    <div className="min-h-screen font-sans selection:bg-black selection:text-white">
+    <div className="min-h-svh font-sans selection:bg-black selection:text-white">
       <Seo
         title="Aura — Wedding & Drone Cinematography"
         description={locale === 'ro' ? BUSINESS.descriptionRo : BUSINESS.descriptionEn}
@@ -36,7 +36,7 @@ export default function Home() {
         ]}
       />
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white transform-gpu will-change-transform">
+      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
         <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter">AURA.</Link>
         <div className="hidden md:flex gap-8 font-medium text-sm tracking-wide uppercase">
           <a href="#about" className="hover:opacity-60 transition-opacity">{t('nav.about')}</a>

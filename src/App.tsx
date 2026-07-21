@@ -15,7 +15,7 @@ const Admin = lazy(() => import('./pages/Admin'));
 const Login = lazy(() => import('./pages/Login'));
 
 function LazyFallback() {
-  return <div className="min-h-screen" />;
+  return <div className="min-h-svh" />;
 }
 
 export default function App() {

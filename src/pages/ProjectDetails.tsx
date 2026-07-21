@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import { breadcrumbJsonLd, projectJsonLd } from '../lib/seoSchemas';
+import { scrollToTop } from '../lib/scroll';
 
 export default function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
@@ -30,16 +31,16 @@ export default function ProjectDetails() {
 
   // Scroll to top on load
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen" />;
+    return <div className="min-h-svh" />;
   }
 
   if (!project) {
     return (
-      <div className="min-h-screen flex items-center justify-center font-sans">
+      <div className="min-h-svh flex items-center justify-center font-sans">
         <div className="text-center">
           <h1 className="font-display text-4xl mb-4">{t('projectDetails.notFoundTitle')}</h1>
           <Link to={lp('/')} className="text-gray-500 hover:text-black transition-colors underline">{t('projectDetails.notFoundCta')}</Link>
@@ -53,7 +54,7 @@ export default function ProjectDetails() {
   const nextProject = projects[(currentIndex + 1) % projects.length];
 
   return (
-    <div className="min-h-screen font-sans selection:bg-black selection:text-white bg-[#f8f8f7]">
+    <div className="min-h-svh font-sans selection:bg-black selection:text-white bg-[#f8f8f7]">
       <Seo
         title={projectTitle(project, locale)}
         description={projectDescription(project, locale)}
@@ -70,7 +71,7 @@ export default function ProjectDetails() {
         ]}
       />
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white transform-gpu will-change-transform">
+      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
         <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
         <Link to={backLink} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase hover:opacity-60 transition-opacity">
           <ArrowLeft size={16} /> <span>{backText}</span>
@@ -194,7 +195,7 @@ export default function ProjectDetails() {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               src={project.gallery[lightboxIndex]}
               alt={`Gallery ${lightboxIndex}`}
-              className="max-w-[90vw] max-h-[90vh] object-contain"
+              className="max-w-[90vw] max-h-[90svh] object-contain"
               onClick={(e) => e.stopPropagation()}
             />
           </motion.div>

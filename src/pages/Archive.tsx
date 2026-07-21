@@ -11,6 +11,7 @@ import { projectTitle } from '../data';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import { breadcrumbJsonLd } from '../lib/seoSchemas';
+import { scrollToTop } from '../lib/scroll';
 
 export default function Archive() {
   const { projects } = useProjects();
@@ -22,7 +23,7 @@ export default function Archive() {
   const [selectedProjectId, setSelectedProjectId] = useState(projects[0]?.id || '');
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }, []);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function Archive() {
   const selectedProject = projects.find(p => p.id === selectedProjectId);
 
   return (
-    <div className="min-h-screen font-sans bg-[#f8f8f7] selection:bg-black selection:text-white pb-20">
+    <div className="min-h-svh font-sans bg-[#f8f8f7] selection:bg-black selection:text-white pb-20">
       <Seo
         title={locale === 'ro' ? 'Arhivă completă de proiecte' : 'Full project archive'}
         description={locale === 'ro'

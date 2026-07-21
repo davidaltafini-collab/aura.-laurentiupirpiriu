@@ -9,6 +9,7 @@ import { useSiteUrl } from '../hooks/useSiteUrl';
 import { useLocale } from '../hooks/useLocale';
 import { useLocalizedPath } from '../hooks/useLocalizedPath';
 import { breadcrumbJsonLd } from '../lib/seoSchemas';
+import { scrollToTop } from '../lib/scroll';
 
 export default function AboutMe() {
   const { t } = useTranslation();
@@ -18,11 +19,11 @@ export default function AboutMe() {
   const lp = useLocalizedPath();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }, []);
 
   return (
-    <div className="min-h-screen font-sans bg-[#f8f8f7] selection:bg-black selection:text-white">
+    <div className="min-h-svh font-sans bg-[#f8f8f7] selection:bg-black selection:text-white">
       <Seo
         title={locale === 'ro' ? 'Despre Laurentiu Pirpiriu' : 'About Laurentiu Pirpiriu'}
         description={t('about.kicker')}
@@ -33,7 +34,7 @@ export default function AboutMe() {
         ])}
       />
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white transform-gpu will-change-transform">
+      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
         <Link to={lp('/')} className="font-display font-bold text-xl md:text-2xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
         <Link to={lp('/')} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase hover:opacity-60 transition-opacity">
           <ArrowLeft size={16} /> {t('projectDetails.backToWork')}
