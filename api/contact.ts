@@ -1,6 +1,6 @@
-import type { VercelRequest, VercelResponse } from './_lib/types';
-import { getSupabaseAdmin } from './_lib/supabaseAdmin';
-import { sendLeadEmails } from './_lib/mailer';
+import type { VercelRequest, VercelResponse } from './_lib/types.js';
+import { getSupabaseAdmin } from './_lib/supabaseAdmin.js';
+import { sendLeadEmails } from './_lib/mailer.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

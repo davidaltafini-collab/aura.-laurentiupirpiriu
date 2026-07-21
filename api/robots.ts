@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from './_lib/types';
+import type { VercelRequest, VercelResponse } from './_lib/types.js';
 
 // Generat dinamic (nu fișier static) ca link-ul către sitemap.xml să aibă
 // mereu domeniul corect, indiferent dacă rulează pe *.vercel.app sau pe

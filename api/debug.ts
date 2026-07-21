@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from './_lib/types';
+import type { VercelRequest, VercelResponse } from './_lib/types.js';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 

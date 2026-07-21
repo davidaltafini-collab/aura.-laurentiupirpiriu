@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import type { VercelRequest, VercelResponse } from './_lib/types';
-import { getSupabaseAdmin } from './_lib/supabaseAdmin';
+import type { VercelRequest, VercelResponse } from './_lib/types.js';
+import { getSupabaseAdmin } from './_lib/supabaseAdmin.js';
 
 const UPLOAD_FOLDER = 'aura/projects';
 
