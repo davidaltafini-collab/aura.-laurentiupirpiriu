@@ -177,8 +177,9 @@ export default function Admin() {
       await updateProject(selectedProject.id, { gallery: [url, ...selectedProject.gallery] });
       await reload();
     } catch (err) {
-      alert('Upload-ul pozei a eșuat. Încearcă din nou.');
-      console.error(err);
+      const msg = err instanceof Error ? err.message : String(err);
+      alert(`Upload-ul pozei a eșuat.\n\n${msg}`);
+      console.error('[admin] upload galerie:', err);
     } finally {
       setUploadingGallery(false);
       e.target.value = '';
@@ -194,8 +195,9 @@ export default function Admin() {
       await updateProject(selectedProject.id, { coverImage: url });
       await reload();
     } catch (err) {
-      alert('Upload-ul copertei a eșuat. Încearcă din nou.');
-      console.error(err);
+      const msg = err instanceof Error ? err.message : String(err);
+      alert(`Upload-ul copertei a eșuat.\n\n${msg}`);
+      console.error('[admin] upload copertă:', err);
     } finally {
       setUploadingCover(false);
       e.target.value = '';

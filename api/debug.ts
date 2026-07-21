@@ -1,6 +1,15 @@
+import crypto from 'crypto';
 import type { VercelRequest, VercelResponse } from './_lib/types.js';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
+
+// Același folder și aceeași logică de semnare ca api/cloudinary-sign.ts, ca
+// testul să reproducă exact ce face funcția reală de upload.
+const CLOUDINARY_FOLDER = 'aura/projects';
+
+// PNG transparent 1x1, ca payload de test pentru upload-ul Cloudinary.
+const TEST_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
 /**
  * Endpoint TEMPORAR de diagnostic. Testează fiecare verigă separat, ca să se
@@ -173,12 +182,83 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   report.smtp = smtpCheck;
 
-  // ── 4. Cloudinary ────────────────────────────────────────────────────────
-  report.cloudinary = {
+  // ── 4. Cloudinary: upload REAL de test ───────────────────────────────────
+  // Reproduce exact ce face api/cloudinary-sign.ts + upload-ul din browser, dar
+  // fără veriga de token Supabase. Astfel:
+  //   - dacă merge AICI dar upload-ul din admin eșuează -> problema e la
+  //     verificarea token-ului (supabase.auth.getUser) din cloudinary-sign;
+  //   - dacă eșuează AICI -> problema e la credențialele/semnătura Cloudinary.
+  const cloud: Record<string, unknown> = {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? null,
     apiKeySet: Boolean(process.env.CLOUDINARY_API_KEY),
     apiSecretSet: Boolean(process.env.CLOUDINARY_API_SECRET),
   };
+
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    cloud.testUpload = { skipped: 'Lipsesc variabile Cloudinary.' };
+    report.ok = false;
+  } else {
+    try {
+      const timestamp = Math.round(Date.now() / 1000);
+      const paramsToSign = `folder=${CLOUDINARY_FOLDER}&timestamp=${timestamp}`;
+      const signature = crypto.createHash('sha1').update(paramsToSign + apiSecret).digest('hex');
+
+      const form = new FormData();
+      form.append('file', `data:image/png;base64,${TEST_PNG_BASE64}`);
+      form.append('api_key', apiKey);
+      form.append('timestamp', String(timestamp));
+      form.append('signature', signature);
+      form.append('folder', CLOUDINARY_FOLDER);
+
+      const uploadRes = await withTimeout(
+        fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: form }),
+        12000,
+        'upload Cloudinary',
+      );
+      const uploadBody = await uploadRes.json().catch(() => ({}));
+
+      if (!uploadRes.ok) {
+        cloud.testUpload = {
+          ok: false,
+          status: uploadRes.status,
+          error: uploadBody?.error?.message ?? 'necunoscut',
+        };
+        report.ok = false;
+      } else {
+        cloud.testUpload = { ok: true, publicId: uploadBody.public_id };
+        // Ștergem imaginea de test (destroy cere semnătură pe public_id+timestamp).
+        try {
+          const ts2 = Math.round(Date.now() / 1000);
+          const destroySig = crypto
+            .createHash('sha1')
+            .update(`public_id=${uploadBody.public_id}&timestamp=${ts2}${apiSecret}`)
+            .digest('hex');
+          const df = new FormData();
+          df.append('public_id', uploadBody.public_id);
+          df.append('api_key', apiKey);
+          df.append('timestamp', String(ts2));
+          df.append('signature', destroySig);
+          const destroyRes = await withTimeout(
+            fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`, { method: 'POST', body: df }),
+            12000,
+            'destroy Cloudinary',
+          );
+          const destroyBody = await destroyRes.json().catch(() => ({}));
+          cloud.testCleanup = { ok: destroyBody.result === 'ok', result: destroyBody.result };
+        } catch (err) {
+          cloud.testCleanup = { ok: false, error: describe(err) };
+        }
+      }
+    } catch (err) {
+      cloud.testUpload = { ok: false, fatal: describe(err) };
+      report.ok = false;
+    }
+  }
+  report.cloudinary = cloud;
 
   return res.status(200).json(report);
 }
