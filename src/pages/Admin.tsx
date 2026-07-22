@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, Reorder, useDragControls } from 'motion/react';
-import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2, CheckCircle2, Circle, Undo, X } from 'lucide-react';
+import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2, CheckCircle2, Circle, Undo } from 'lucide-react';
 import { Project } from '../data';
 import { useProjects } from '../hooks/useProjects';
 import { useAuth } from '../context/AuthContext';
@@ -620,13 +620,6 @@ export default function Admin() {
                       className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-4 whitespace-nowrap"
                     >
                       <span className="font-medium text-gray-600">{selectedPhotos.size} selectate</span>
-                      <button
-                        onClick={clearSelection}
-                        title="Deselectează tot"
-                        className="text-gray-400 hover:text-black transition-colors p-2 -m-2"
-                      >
-                        <X size={20} />
-                      </button>
                       <button
                         onClick={removeSelectedPhotos}
                         className="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-6 py-4 rounded-full font-medium flex items-center gap-2 transition-colors"
