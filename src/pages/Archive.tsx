@@ -12,6 +12,7 @@ import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import BrandLockup from '../components/BrandLockup';
 import { breadcrumbJsonLd } from '../lib/seoSchemas';
+import { scrollToPageTop } from '../lib/scroll';
 
 export default function Archive() {
   const { projects } = useProjects();
@@ -49,7 +50,7 @@ export default function Archive() {
       />
       {/* Nav */}
       <nav className="p-4 md:p-10 flex justify-between items-center bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
-        <Link to={lp('/')} className="min-w-0 hover:opacity-60 transition-opacity">
+        <Link to={lp('/')} onClick={scrollToPageTop} className="min-w-0 hover:opacity-60 transition-opacity">
           <BrandLockup
             className="max-sm:flex-col max-sm:items-start max-sm:gap-0.5"
             markClassName="text-2xl sm:text-3xl md:text-5xl"
@@ -57,7 +58,7 @@ export default function Archive() {
             suffix={<span className="hidden sm:inline text-gray-400 font-display font-light tracking-normal text-lg md:text-xl">{t('archive.kicker')}</span>}
           />
         </Link>
-        <Link to={lp('/')} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase text-gray-500 hover:text-black transition-colors">
+        <Link to={lp('/')} onClick={scrollToPageTop} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase text-gray-500 hover:text-black transition-colors">
           <ArrowLeft size={16} /> <span>{t('footer.home')}</span>
         </Link>
       </nav>

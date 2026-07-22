@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import BrandLockup from '../components/BrandLockup';
+import { scrollToPageTop } from '../lib/scroll';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -48,7 +49,7 @@ export default function Login() {
         />
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute top-10 left-10 z-10">
-          <Link to="/" className="text-white hover:opacity-80 transition-opacity duration-300">
+          <Link to="/" onClick={scrollToPageTop} className="text-white hover:opacity-80 transition-opacity duration-300">
             <BrandLockup markClassName="text-2xl" signatureClassName="text-lg" />
           </Link>
         </div>
@@ -72,17 +73,17 @@ export default function Login() {
       <div className="flex-1 flex flex-col min-h-svh relative">
         {/* Nav mobil */}
         <nav className="p-6 flex md:hidden justify-between items-center bg-white z-50">
-          <Link to="/" className="hover:opacity-60 transition-opacity">
+          <Link to="/" onClick={scrollToPageTop} className="hover:opacity-60 transition-opacity">
             <BrandLockup className="flex-col items-start gap-0.5" markClassName="text-xl" signatureClassName="text-sm" />
           </Link>
-          <Link to="/" className="flex items-center gap-2 font-medium text-xs tracking-wide uppercase text-gray-500 hover:text-black transition-colors">
+          <Link to="/" onClick={scrollToPageTop} className="flex items-center gap-2 font-medium text-xs tracking-wide uppercase text-gray-500 hover:text-black transition-colors">
             <ArrowLeft size={16} /> Înapoi
           </Link>
         </nav>
 
         {/* Buton back desktop */}
         <div className="hidden md:block absolute top-10 right-12 z-50">
-          <Link to="/" className="flex items-center gap-2 font-medium text-xs tracking-widest uppercase text-gray-400 hover:text-black transition-colors">
+          <Link to="/" onClick={scrollToPageTop} className="flex items-center gap-2 font-medium text-xs tracking-widest uppercase text-gray-400 hover:text-black transition-colors">
             Înapoi la site
           </Link>
         </div>

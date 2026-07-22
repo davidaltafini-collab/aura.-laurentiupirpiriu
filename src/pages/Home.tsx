@@ -17,6 +17,7 @@ import BrandLockup from '../components/BrandLockup';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { photographyBusinessJsonLd, faqJsonLd, BUSINESS } from '../lib/seoSchemas';
 import { HOME_FAQ, faqQuestion, faqAnswer } from '../data/faq';
+import { scrollToPageTop } from '../lib/scroll';
 
 export default function Home() {
   const { projects } = useProjects();
@@ -43,7 +44,7 @@ export default function Home() {
       />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 py-5 md:py-8 px-[2.5vw] flex justify-between items-center gap-4 mix-blend-difference text-white">
-        <Link to={lp('/')} className="min-w-0 hover:opacity-80 transition-opacity duration-300">
+        <Link to={lp('/')} onClick={scrollToPageTop} className="min-w-0 hover:opacity-80 transition-opacity duration-300">
           <BrandLockup
             className="max-sm:flex-col max-sm:items-start max-sm:gap-0.5"
             markClassName="text-2xl sm:text-3xl md:text-5xl"

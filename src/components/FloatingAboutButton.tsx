@@ -8,7 +8,7 @@ export default function FloatingAboutButton() {
   const location = useLocation();
   const lp = useLocalizedPath();
   const [bottomOffset, setBottomOffset] = useState(0);
-  const ringText = 'ABOUT ME \u2022 LAURENTIU PIRPILIU \u2022 ABOUT ME \u2022 LAURENTIU PIRPILIU \u2022';
+  const ringText = 'ABOUT ME \u2022 LAURENTIU PIRPILIU \u2022';
 
   // Ancoră fixă, NEtransformată. Poziția ei nu se schimbă niciodată, deci e o
   // referință de măsurare stabilă. Translate-ul se aplică pe div-ul dinăuntru.
@@ -87,8 +87,8 @@ export default function FloatingAboutButton() {
             >
               <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
                 <path id="aboutButtonCirclePath" d="M 50, 50 m 0, -43 a 43,43 0 1,1 0,86 a 43,43 0 1,1 0,-86" fill="none" />
-                <text fill="white" fontSize="8.88" fontWeight="900" letterSpacing="0" textLength="270" lengthAdjust="spacing" className="font-sans uppercase">
-                  <textPath href="#aboutButtonCirclePath" startOffset="0">
+                <text fill="white" fontSize="8.88" fontWeight="900" letterSpacing="0" textLength="263" lengthAdjust="spacingAndGlyphs" className="font-sans uppercase">
+                  <textPath href="#aboutButtonCirclePath" startOffset="50%" textAnchor="middle">
                     {ringText}
                   </textPath>
                 </text>

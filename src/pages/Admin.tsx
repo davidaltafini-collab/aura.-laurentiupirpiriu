@@ -34,6 +34,7 @@ import {
 import { compressImage } from '../lib/imageCompress';
 import { fetchLeads, updateLeadStatus, Lead } from '../lib/leads';
 import BrandLockup from '../components/BrandLockup';
+import { scrollToPageTop } from '../lib/scroll';
 
 // ─── Selector de dată: lună (RO) + an ────────────────────────────────────────
 // Câmpul `date` e un text afișat direct pe site (ex. „Septembrie 2026"), nu o
@@ -521,7 +522,7 @@ export default function Admin() {
 
       {/* Nav */}
       <nav className="p-4 md:p-10 flex justify-between items-center bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
-        <Link to="/" className="min-w-0 hover:opacity-70 transition-opacity">
+        <Link to="/" onClick={scrollToPageTop} className="min-w-0 hover:opacity-70 transition-opacity">
           <BrandLockup
             className="max-sm:flex-col max-sm:items-start max-sm:gap-0.5"
             markClassName="text-xl md:text-2xl"

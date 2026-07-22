@@ -6,8 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
-.claude/settings.local.json
+.claude/
 .impeccable/
-
 .vercel
-.env*
+assets/.aistudio/
+.playwright-cli/
+output/playwright/

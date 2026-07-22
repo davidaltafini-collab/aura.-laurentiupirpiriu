@@ -13,6 +13,7 @@ import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import BrandLockup from '../components/BrandLockup';
 import { breadcrumbJsonLd, projectJsonLd } from '../lib/seoSchemas';
+import { scrollToPageTop } from '../lib/scroll';
 
 export default function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
@@ -27,7 +28,7 @@ export default function ProjectDetails() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const fromArchive = location.state?.from === 'archive';
-  const backLink = fromArchive ? lp('/archive') : lp('/');
+  const backLink = fromArchive ? lp('/archive') : `${lp('/')}#work`;
   const backText = fromArchive ? t('projectDetails.backToArchive') : t('projectDetails.backToWork');
 
   // Scroll to top on load. Dependența pe `id` e esențială: la „proiectul următor"
@@ -80,7 +81,7 @@ export default function ProjectDetails() {
       />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
-        <Link to={lp('/')} className="min-w-0 hover:opacity-60 transition-opacity">
+        <Link to={lp('/')} onClick={scrollToPageTop} className="min-w-0 hover:opacity-60 transition-opacity">
           <BrandLockup
             className="max-sm:flex-col max-sm:items-start max-sm:gap-0.5"
             markClassName="text-2xl sm:text-3xl md:text-5xl"

@@ -1,21 +1,13 @@
 import { Project, projectTitle, projectDescription, Locale } from '../data';
 
-/**
- * Date de business folosite în JSON-LD și meta tags. Cele marcate TODO sunt
- * placeholder — trebuie înlocuite cu datele reale ale afacerii (telefon,
- * adresă, rețele sociale) înainte de lansare, altfel Google Business
- * Profile și schema.org vor fi inconsistente (rău pentru SEO local).
- */
 export const BUSINESS = {
   name: 'CAPTUR.',
-  legalName: 'CAPTUR. — Wedding & Drone Cinematography by Laurentiu Pirpiliu',
+  legalName: 'CAPTUR. - Wedding & Drone Cinematography by Laurentiu Pirpiliu',
   founder: 'Laurentiu Pirpiliu',
-  descriptionRo: 'Fotografie și cinematografie artistică de nuntă, inclusiv filmări cu drona — Laurentiu Pirpiliu documentează povești de dragoste în România și internațional.',
-  descriptionEn: 'Artistic wedding photography and cinematography, including drone footage — Laurentiu Pirpiliu documents love stories across Romania and worldwide.',
-  // TODO: înlocuiește cu datele reale ale afacerii
-  telephone: '+40 700 000 000',
-  areaServed: ['România', 'Europa'],
-  sameAs: [] as string[], // TODO: linkuri Instagram/Facebook/YouTube reale
+  descriptionRo: 'Fotografie si cinematografie artistica de nunta, inclusiv filmari cu drona - Laurentiu Pirpiliu documenteaza povesti de dragoste in Romania si international.',
+  descriptionEn: 'Artistic wedding photography and cinematography, including drone footage - Laurentiu Pirpiliu documents love stories across Romania and worldwide.',
+  areaServed: ['Romania', 'Europe'],
+  sameAs: [] as string[],
 };
 
 const DEFAULT_OG_IMAGE = '/placeholders/wedding-2.jpg';
@@ -29,7 +21,6 @@ export function photographyBusinessJsonLd(siteUrl: string) {
     url: siteUrl,
     image: DEFAULT_OG_IMAGE,
     description: BUSINESS.descriptionRo,
-    telephone: BUSINESS.telephone,
     areaServed: BUSINESS.areaServed,
     founder: {
       '@type': 'Person',
