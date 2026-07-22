@@ -214,12 +214,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       form.append('signature', signature);
       form.append('folder', CLOUDINARY_FOLDER);
 
+      const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
       const uploadRes = await withTimeout(
-        fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: form }),
+        fetch(endpoint, { method: 'POST', body: form }),
         12000,
         'upload Cloudinary',
       );
       const uploadBody = await uploadRes.json().catch(() => ({}));
+
+      // Detaliile exacte de cerere + răspuns, ca să le putem da asistentului
+      // Cloudinary. api_key NU e secret (se trimite în fiecare upload din
+      // browser), deci poate fi arătat ca să identifice cheia. Secretul NU apare.
+      cloud.requestDetails = {
+        method: 'POST multipart/form-data',
+        endpoint,
+        signedMode: true,
+        apiKeyUsed: apiKey,
+        stringThatWasSigned: paramsToSign,
+        fieldsSent: ['file', 'api_key', 'timestamp', 'signature', 'folder'],
+        folder: CLOUDINARY_FOLDER,
+      };
+      cloud.responseHeaders = {
+        xCldError: uploadRes.headers.get('x-cld-error'),
+      };
 
       if (!uploadRes.ok) {
         cloud.testUpload = {
