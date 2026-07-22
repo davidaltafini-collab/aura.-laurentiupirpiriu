@@ -39,7 +39,11 @@ export default function FloatingAboutButton() {
       const viewportBottom = anchorRect.bottom + gap;
       const footerTop = footer.getBoundingClientRect().top;
 
-      setBottomOffset(footerTop < viewportBottom ? viewportBottom - footerTop : 0);
+      // Rotunjim la pixel întreg și sărim setState-ul dacă valoarea nu s-a
+      // schimbat: fără asta, sub-pixelii din scroll re-randează inutil și
+      // adaugă tremur.
+      const next = footerTop < viewportBottom ? Math.round(viewportBottom - footerTop) : 0;
+      setBottomOffset(prev => (prev === next ? prev : next));
     };
 
     // O singură măsurătoare per frame, ca să nu forțeze layout la fiecare event.
@@ -67,7 +71,10 @@ export default function FloatingAboutButton() {
       ref={anchorRef}
       className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50 pointer-events-none"
     >
-      <div style={{ transform: `translateY(-${bottomOffset}px)`, transition: 'transform 0.1s ease-out' }}>
+      {/* Fără transition: offset-ul se recalculează la fiecare frame de scroll,
+          deci butonul urmărește footer-ul 1:1, ca un element lipit. O tranziție
+          CSS ar rămâne mereu în urma țintei și ar da senzația de „săltăreț". */}
+      <div style={{ transform: `translateY(-${bottomOffset}px)`, willChange: 'transform' }}>
         <Link to={lp('/about')} className="block group pointer-events-auto">
           <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-300 shadow-2xl">
             <div className="absolute inset-0 rounded-full bg-black"></div>

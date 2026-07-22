@@ -79,6 +79,10 @@
     "sentBody": "Laurentiu a primit poza ta.",
     "alreadySent": "Ai trimis deja o poză în această sesiune. Mulțumim!",
     "rateLimited": "Ai trimis deja o poză recent. Mai încearcă peste puțin timp.",
-    "genericError": "Nu am putut trimite poza. Încearcă din nou."
+    "genericError": "Nu am putut trimite poza. Încearcă din nou.",
+    "capture": "Fotografiază",
+    "flipCamera": "Schimbă camera",
+    "cancelCamera": "Renunță",
+    "cameraError": "Nu am putut porni camera. Verifică permisiunile sau alege o poză din galerie."
   }
 }

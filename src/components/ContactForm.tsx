@@ -116,7 +116,7 @@ export default function ContactForm() {
           placeholder={t('contactForm.phonePlaceholder')}
           value={form.phone}
           onChange={update('phone')}
-          className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg"
+          className="w-full min-w-0 bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg"
         />
         {/* type="date" deschide selectorul nativ al sistemului (iOS/Android/desktop).
             `color-scheme: dark` e obligatoriu aici: fără el, controalele native ale
@@ -130,7 +130,7 @@ export default function ContactForm() {
           min={new Date().toISOString().split('T')[0]}
           value={form.eventDate}
           onChange={update('eventDate')}
-          className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg [color-scheme:dark]"
+          className="w-full min-w-0 bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer"
         />
       </div>
       <textarea

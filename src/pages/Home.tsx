@@ -40,7 +40,7 @@ export default function Home() {
         ]}
       />
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
+      <nav className="fixed top-0 left-0 right-0 z-50 py-5 md:py-8 px-[2.5vw] flex justify-between items-center mix-blend-difference text-white">
         <Link to={lp('/')} className="font-display font-bold text-4xl md:text-5xl tracking-tighter">AURA.</Link>
         <div className="hidden md:flex gap-8 font-medium text-sm tracking-wide uppercase">
           <a href="#about" className="hover:opacity-60 transition-opacity">{t('nav.about')}</a>
@@ -52,8 +52,10 @@ export default function Home() {
         </a>
       </nav>
 
-      {/* Hero Section */}
-      <section ref={heroRef} className="h-[calc(var(--vh,1svh)*95)] w-[95vw] mx-auto mt-[calc(var(--vh,1svh)*2.5)] relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
+      {/* Hero Section — cardul începe SUB nav, ca AURA + „Rezervă" să stea
+          deasupra lui, nu peste poză. Înălțimea scade exact cât ține header-ul
+          fix (mt), ca poza + header să încapă pe un singur ecran. */}
+      <section ref={heroRef} className="h-[calc((var(--vh,1svh)*100)-9rem)] md:h-[calc((var(--vh,1svh)*100)-11rem)] w-[95vw] mx-auto mt-28 md:mt-36 relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
         <motion.img
           src="/placeholders/wedding-2.jpg"
           alt="Wedding couple"

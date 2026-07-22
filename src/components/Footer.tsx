@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Mail, MapPin, Camera, X, Upload, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Mail, MapPin, Camera, X, Upload, Send, CheckCircle2, Loader2, SwitchCamera } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 const SESSION_KEY = 'aura_photo_sent';
 
 type SendStatus = 'idle' | 'sending' | 'sent' | 'error';
+type Facing = 'user' | 'environment';
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -23,12 +24,61 @@ export default function Footer() {
   const [errorMsg, setErrorMsg] = useState('');
   const [alreadySent, setAlreadySent] = useState(false);
 
+  // Cameră în pagină (getUserMedia). O afișăm NE-oglindită — inclusiv camera
+  // frontală — ca poza trimisă să arate exact ca în realitate (fără efectul de
+  // „mirror" pe care telefonul îl pune de obicei la selfie).
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState('');
+  const [facing, setFacing] = useState<Facing>('user');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const fallbackInputRef = useRef<HTMLInputElement>(null);
+
+  const stopCamera = () => {
+    streamRef.current?.getTracks().forEach(track => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+  };
+
+  // Pornește / repornește stream-ul când se deschide camera sau se schimbă
+  // obiectivul (față/spate).
+  useEffect(() => {
+    if (!cameraOpen) return;
+    let active = true;
+
+    (async () => {
+      streamRef.current?.getTracks().forEach(track => track.stop());
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: facing } },
+          audio: false,
+        });
+        if (!active) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+        streamRef.current = stream;
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      } catch {
+        setCameraError(t('photoModal.cameraError'));
+        setCameraOpen(false);
+      }
+    })();
+
+    return () => { active = false; };
+  }, [cameraOpen, facing, t]);
+
+  // Plasă de siguranță: dacă modalul dispare din DOM, nu lăsăm camera pornită.
+  useEffect(() => () => stopCamera(), []);
+
   const openModal = () => {
     setAlreadySent(sessionStorage.getItem(SESSION_KEY) === '1');
     setModalOpen(true);
   };
 
   const closeModal = () => {
+    stopCamera();
+    setCameraOpen(false);
     setModalOpen(false);
     // Reset la închidere, după ce animația de ieșire se termină.
     setTimeout(() => {
@@ -37,7 +87,35 @@ export default function Footer() {
       setMessage('');
       setStatus('idle');
       setErrorMsg('');
+      setCameraError('');
     }, 300);
+  };
+
+  const openCamera = () => {
+    setCameraError('');
+    if (navigator.mediaDevices?.getUserMedia) {
+      setFacing('user');
+      setCameraOpen(true);
+    } else {
+      // Browser fără getUserMedia: camera nativă a sistemului.
+      fallbackInputRef.current?.click();
+    }
+  };
+
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth) return;
+    const scale = Math.min(1, 1600 / Math.max(video.videoWidth, video.videoHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    // Desenăm cadrul așa cum e — fără scaleX(-1), deci fără oglindire.
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    setImage(canvas.toDataURL('image/jpeg', 0.85));
+    stopCamera();
+    setCameraOpen(false);
   };
 
   const handleFile = async (file: File | undefined) => {
@@ -136,7 +214,47 @@ export default function Footer() {
 
               {/* Body */}
               <div className="p-8 flex-1 flex flex-col items-center justify-center min-h-[300px]">
-                {status === 'sent' ? (
+                {cameraOpen ? (
+                  <div className="w-full flex flex-col gap-5">
+                    <div className="w-full aspect-[3/4] max-h-[50vh] relative rounded-2xl overflow-hidden bg-black">
+                      {/* Fără scaleX(-1): previzualizarea NU e oglindită. */}
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFacing(f => (f === 'user' ? 'environment' : 'user'))}
+                        title={t('photoModal.flipCamera')}
+                        aria-label={t('photoModal.flipCamera')}
+                        className="absolute top-3 right-3 w-11 h-11 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                      >
+                        <SwitchCamera size={20} />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => { stopCamera(); setCameraOpen(false); }}
+                        className="px-5 py-3 rounded-full font-bold text-xs uppercase tracking-widest text-gray-500 hover:text-black transition-colors"
+                      >
+                        {t('photoModal.cancelCamera')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={capturePhoto}
+                        aria-label={t('photoModal.capture')}
+                        className="w-16 h-16 rounded-full bg-black flex items-center justify-center hover:scale-105 transition-transform ring-4 ring-black/10"
+                      >
+                        <span className="w-12 h-12 rounded-full border-2 border-white" />
+                      </button>
+                      <span className="w-[4.75rem]" aria-hidden />
+                    </div>
+                  </div>
+                ) : status === 'sent' ? (
                   <div className="flex flex-col items-center gap-4 text-center">
                     <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center">
                       <CheckCircle2 size={32} className="text-white" />
@@ -189,17 +307,32 @@ export default function Footer() {
                       </div>
                       <input type="file" accept="image/*" onChange={(e) => handleFile(e.target.files?.[0])} className="hidden" />
                     </label>
-                    <label className="w-full py-4 border-2 border-gray-200 rounded-[2rem] flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 hover:border-black transition-all group font-medium text-gray-600">
+                    <button
+                      type="button"
+                      onClick={openCamera}
+                      className="w-full py-4 border-2 border-gray-200 rounded-[2rem] flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 hover:border-black transition-all group font-medium text-gray-600"
+                    >
                       <Camera size={20} className="text-gray-400 group-hover:text-black" />
                       {t('photoModal.takePhoto')}
-                      <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFile(e.target.files?.[0])} className="hidden" />
-                    </label>
+                    </button>
+                    {cameraError && (
+                      <p className="text-red-500 text-sm text-center font-medium">{cameraError}</p>
+                    )}
+                    {/* Fallback pentru browsere fără getUserMedia: camera nativă. */}
+                    <input
+                      ref={fallbackInputRef}
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => handleFile(e.target.files?.[0])}
+                      className="hidden"
+                    />
                   </div>
                 )}
               </div>
 
               {/* Footer */}
-              {status !== 'sent' && !alreadySent && (
+              {!cameraOpen && status !== 'sent' && !alreadySent && (
                 <div className="p-6 border-t border-gray-100 bg-gray-50/50">
                   {status === 'error' && (
                     <p className="text-red-500 text-sm text-center font-medium mb-3">{errorMsg}</p>

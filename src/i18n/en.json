@@ -79,6 +79,10 @@
     "sentBody": "Laurentiu received your photo.",
     "alreadySent": "You already sent a photo this session. Thank you!",
     "rateLimited": "You already sent a photo recently. Please try again later.",
-    "genericError": "Could not send the photo. Please try again."
+    "genericError": "Could not send the photo. Please try again.",
+    "capture": "Capture",
+    "flipCamera": "Flip camera",
+    "cancelCamera": "Cancel",
+    "cameraError": "Couldn't start the camera. Check permissions or pick a photo from your gallery."
   }
 }
