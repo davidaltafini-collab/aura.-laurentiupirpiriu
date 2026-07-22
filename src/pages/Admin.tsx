@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, Reorder, useDragControls } from 'motion/react';
-import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2, Check, X, RotateCcw } from 'lucide-react';
+import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2, CheckCircle2, Circle, Undo, X } from 'lucide-react';
 import { Project } from '../data';
 import { useProjects } from '../hooks/useProjects';
 import { useAuth } from '../context/AuthContext';
@@ -486,26 +486,26 @@ export default function Admin() {
                     <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tighter">{draft.titleRo}</h2>
                     <p className="text-gray-500 mt-2 text-lg">Editează detaliile și galeria proiectului</p>
                   </div>
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      onClick={handleSave}
-                      disabled={!isDirty || saving}
-                      className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-colors"
-                    >
-                      {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                      {saving ? 'Se salvează...' : isDirty ? 'Salvează modificările' : 'Salvat'}
-                    </button>
+                  <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                     <button
                       onClick={handleRevert}
                       disabled={!isDirty || saving}
                       title="Anulează toate modificările nesalvate"
-                      className="bg-white border border-gray-200 text-gray-600 hover:text-black hover:border-gray-400 disabled:opacity-40 disabled:hover:text-gray-600 disabled:hover:border-gray-200 px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-colors"
+                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed px-5 py-3 rounded-full font-medium flex items-center gap-2 transition-colors flex-1 md:flex-none justify-center"
                     >
-                      <RotateCcw size={18} /> Revert
+                      <Undo size={18} /> Revert
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      disabled={!isDirty || saving}
+                      className="bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed px-5 py-3 rounded-full font-medium flex items-center gap-2 transition-colors flex-1 md:flex-none justify-center"
+                    >
+                      {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                      {saving ? 'Se salvează...' : 'Salvează'}
                     </button>
                     <button
                       onClick={handleDeleteProject}
-                      className="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-colors"
+                      className="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-5 py-3 rounded-full font-medium flex items-center gap-2 transition-colors flex-1 md:flex-none justify-center"
                     >
                       <Trash2 size={18} /> Șterge
                     </button>
@@ -591,51 +591,51 @@ export default function Admin() {
                   </div>
                 </div>
 
-                {/* Add Photo Form — acceptă mai multe poze deodată */}
-                <div className="mb-6 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
-                  <label className={`flex-1 bg-gray-50 border border-gray-200 border-dashed rounded-full px-6 py-4 w-full flex items-center justify-center transition-colors ${uploadingGallery ? 'opacity-60 cursor-default' : 'cursor-pointer hover:bg-gray-100'}`}>
-                    <span className="text-gray-500 font-medium flex items-center gap-2">
-                      {uploadingGallery ? (
-                        <>
-                          <Loader2 size={20} className="animate-spin" />
-                          Se încarcă {uploadProgress.done}/{uploadProgress.total}...
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={20} /> Adaugă poze în galerie
-                        </>
-                      )}
-                    </span>
-                    <input type="file" accept="image/*" multiple onChange={handlePhotoUpload} disabled={uploadingGallery} className="hidden" />
-                  </label>
-                  <p className="text-xs text-gray-400 text-center md:text-right shrink-0">
-                    Poți selecta mai multe odată.<br className="hidden md:block" /> Se comprimă automat înainte de urcare.
-                  </p>
-                </div>
+                {/* Add Photo Form & Selection Actions */}
+                <div className="mb-10 flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+                  <div className="flex-1 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 w-full">
+                    <label className={`bg-gray-50 border border-gray-200 border-dashed rounded-full px-6 py-4 w-full flex items-center justify-center transition-colors ${uploadingGallery ? 'opacity-60 cursor-default' : 'cursor-pointer hover:bg-gray-100'}`}>
+                      <span className="text-gray-500 font-medium flex items-center gap-2">
+                        {uploadingGallery ? (
+                          <>
+                            <Loader2 size={20} className="animate-spin" />
+                            Se încarcă {uploadProgress.done}/{uploadProgress.total}...
+                          </>
+                        ) : (
+                          <>
+                            <Plus size={20} /> Adaugă poze în galerie
+                          </>
+                        )}
+                      </span>
+                      <input type="file" accept="image/*" multiple onChange={handlePhotoUpload} disabled={uploadingGallery} className="hidden" />
+                    </label>
+                  </div>
 
-                {/* Bara de selecție — apare doar când sunt poze selectate.
-                    Ștergerea doar le scoate din draft; se aplică la Salvează. */}
-                {selectedPhotos.size > 0 && (
-                  <div className="mb-6 bg-gray-900 text-white rounded-[2rem] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-4 z-40 shadow-xl">
-                    <p className="font-medium text-center sm:text-left">
-                      {selectedPhotos.size} {selectedPhotos.size === 1 ? 'poză selectată' : 'poze selectate'}
-                    </p>
-                    <div className="flex gap-3 shrink-0">
+                  {/* Apare doar când sunt poze selectate. Ștergerea doar le scoate
+                      din draft; se aplică în DB abia la Salvează. */}
+                  {selectedPhotos.size > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-4 whitespace-nowrap"
+                    >
+                      <span className="font-medium text-gray-600">{selectedPhotos.size} selectate</span>
                       <button
                         onClick={clearSelection}
-                        className="px-5 py-3 rounded-full font-medium text-gray-300 bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-2"
+                        title="Deselectează tot"
+                        className="text-gray-400 hover:text-black transition-colors p-2 -m-2"
                       >
-                        <X size={18} /> Deselectează
+                        <X size={20} />
                       </button>
                       <button
                         onClick={removeSelectedPhotos}
-                        className="px-5 py-3 rounded-full font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors flex items-center gap-2"
+                        className="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-6 py-4 rounded-full font-medium flex items-center gap-2 transition-colors"
                       >
-                        <Trash2 size={18} /> Șterge din galerie
+                        <Trash2 size={18} /> Șterge selectate
                       </button>
-                    </div>
-                  </div>
-                )}
+                    </motion.div>
+                  )}
+                </div>
 
                 {/* Gallery Grid — click pe poză o selectează (Shift = interval) */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -645,26 +645,36 @@ export default function Admin() {
                       <div
                         key={`${img}-${i}`}
                         onClick={(e) => togglePhoto(i, e.shiftKey)}
-                        className={`group relative aspect-[4/5] rounded-[1.5rem] overflow-hidden shadow-sm cursor-pointer select-none transition-all duration-200 ${
-                          isSelected ? 'ring-4 ring-black' : 'hover:shadow-xl'
+                        className={`group relative aspect-[4/5] rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer select-none ${
+                          isSelected ? 'ring-4 ring-black scale-[0.98]' : ''
                         }`}
                       >
                         <img
                           src={img}
                           alt={`Galerie ${i}`}
-                          className={`w-full h-full object-cover transition-transform duration-200 ${isSelected ? 'scale-95' : ''}`}
+                          className={`w-full h-full object-cover transition-transform duration-500 ${isSelected ? 'scale-105' : 'group-hover:scale-105'}`}
                         />
-                        {/* Cercul de selecție, stil Apple Photos: gol când nu e
-                            selectat, plin cu bifă când e. Mereu vizibil pe touch. */}
+                        {/* Cerc gol / bifă plină, stil Apple Photos. Pe desktop
+                            apare la hover; pe touch (fără hover) e mereu vizibil,
+                            ca să se știe că pozele sunt selectabile. */}
                         <div
-                          className={`absolute top-3 left-3 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
+                          className={`absolute top-4 right-4 z-10 transition-all duration-300 ${
                             isSelected
-                              ? 'bg-black border-black text-white'
-                              : 'bg-black/20 border-white/90 text-transparent group-hover:bg-black/40'
+                              ? 'opacity-100 scale-100'
+                              : 'opacity-100 scale-100 md:opacity-0 md:scale-75 md:group-hover:opacity-100 md:group-hover:scale-100'
                           }`}
                         >
-                          <Check size={16} strokeWidth={3} />
+                          {isSelected ? (
+                            <div className="bg-white rounded-full shadow-lg">
+                              <CheckCircle2 size={32} className="fill-black text-white" />
+                            </div>
+                          ) : (
+                            <div className="bg-black/20 text-white rounded-full backdrop-blur-sm border-2 border-white/50">
+                              <Circle size={28} />
+                            </div>
+                          )}
                         </div>
+                        <div className={`absolute inset-0 transition-colors duration-300 ${isSelected ? 'bg-black/20' : 'bg-black/0 group-hover:bg-black/10'}`} />
                       </div>
                     );
                   })}

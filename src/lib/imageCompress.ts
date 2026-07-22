@@ -1,38 +1,45 @@
 /**
- * Compresie de imagini pe client, înainte de upload. Fără dependențe: folosește
- * canvas-ul browserului.
+ * Compresie de imagini pe client — INTELIGENTĂ: comprimă doar când e strict
+ * necesar. E un site de fotografie, deci pozele trebuie să rămână la calitate
+ * maximă; nu atingem nimic dacă poza urcă oricum fără probleme.
  *
- * Motivul: pozele de la aparat/telefon pot avea zeci de MB (ex. 35MB la 4K).
- * Upload-ul lor e lent și, în plus, Cloudinary respinge peste ~10MB pe planul
- * gratuit. Reducem latura mare la maxim `maxDimension` px și re-encodăm JPEG,
- * ceea ce aduce un 4K de 35MB la ~1–3MB, fără pierdere vizibilă pentru web
- * (Cloudinary mai optimizează oricum la livrare).
+ * Singurul caz în care compresia e obligatorie: fișierul depășește limita de
+ * upload a Cloudinary (10MB pe planul gratuit) — atunci ar fi respins complet.
+ * Sub limită, urcăm originalul neatins, iar Cloudinary optimizează oricum la
+ * livrare (deci vizitatorul primește o versiune ușoară, fără să sacrificăm
+ * originalul stocat).
  */
 
-interface CompressOptions {
-  maxDimension?: number;
-  quality?: number;
-}
+// Limita Cloudinary pentru imagini pe planul gratuit.
+const CLOUDINARY_MAX_BYTES = 10 * 1024 * 1024;
+// Ținta când suntem nevoiți să comprimăm — confortabil sub limită.
+const SAFE_TARGET_BYTES = 9 * 1024 * 1024;
+// Când comprimăm, nu coborâm sub o latură generoasă: păstrăm detaliul.
+const MAX_DIMENSION_WHEN_COMPRESSING = 4096;
+// Ordinea de calitate încercată — pornim foarte sus și coborâm doar cât trebuie.
+const QUALITY_STEPS = [0.92, 0.88, 0.84, 0.8, 0.75];
 
-const DEFAULTS: Required<CompressOptions> = {
-  maxDimension: 3200,
-  quality: 0.82,
-};
+/**
+ * @returns fișierul original dacă nu e nevoie de compresie, altfel o versiune
+ *          JPEG suficient de mică cât să treacă de Cloudinary, la cea mai mare
+ *          calitate care încape sub limită.
+ */
+export async function compressImage(file: File): Promise<File> {
+  // Non-imagini și GIF (animație): nu le atingem.
+  if (!file.type.startsWith('image/') || file.type === 'image/gif') return file;
 
-export async function compressImage(file: File, options?: CompressOptions): Promise<File> {
-  const { maxDimension, quality } = { ...DEFAULTS, ...options };
+  // Cazul normal pentru un site de poze: fișierul e sub limită -> ORIGINAL,
+  // fără nicio pierdere de calitate. Nu decodăm nimic, nu re-encodăm nimic.
+  if (file.size <= CLOUDINARY_MAX_BYTES) return file;
 
-  // GIF (animație) și non-imagini: le lăsăm neatinse, canvas-ul le-ar strica.
-  if (!file.type.startsWith('image/') || file.type === 'image/gif') {
-    return file;
-  }
-
+  // Doar aici, pentru fișierele care altfel ar fi respinse, comprimăm.
   try {
-    // `imageOrientation: 'from-image'` aplică rotația din EXIF — altfel pozele
-    // făcute pe telefon în portret ar ieși rotite.
+    // `imageOrientation: 'from-image'` coace rotația din EXIF în pixeli — altfel
+    // pozele de telefon în portret ar ieși rotite după re-encodare.
     const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
 
-    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const maxDim = Math.max(bitmap.width, bitmap.height);
+    const scale = Math.min(1, MAX_DIMENSION_WHEN_COMPRESSING / maxDim);
     const width = Math.round(bitmap.width * scale);
     const height = Math.round(bitmap.height * scale);
 
@@ -47,20 +54,25 @@ export async function compressImage(file: File, options?: CompressOptions): Prom
     ctx.drawImage(bitmap, 0, 0, width, height);
     bitmap.close();
 
-    const blob = await new Promise<Blob | null>(resolve =>
-      canvas.toBlob(resolve, 'image/jpeg', quality),
-    );
-    if (!blob) return file;
-
-    // Dacă poza era deja mică și nu am redimensionat, iar JPEG-ul ar ieși mai
-    // mare decât originalul (ex. un PNG mic), păstrăm originalul.
-    if (scale === 1 && blob.size >= file.size) return file;
-
-    const newName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
-    return new File([blob], newName, { type: 'image/jpeg', lastModified: Date.now() });
+    // Coborâm calitatea progresiv, dar ne oprim la prima care încape sub țintă —
+    // deci păstrăm cea mai bună calitate posibilă. Ultima treaptă e acceptată
+    // oricum, ca să garantăm că iese ceva sub limită.
+    for (const quality of QUALITY_STEPS) {
+      const blob = await new Promise<Blob | null>(resolve =>
+        canvas.toBlob(resolve, 'image/jpeg', quality),
+      );
+      if (!blob) continue;
+      const isLast = quality === QUALITY_STEPS[QUALITY_STEPS.length - 1];
+      if (blob.size <= SAFE_TARGET_BYTES || isLast) {
+        const newName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+        return new File([blob], newName, { type: 'image/jpeg', lastModified: Date.now() });
+      }
+    }
+    return file;
   } catch {
-    // Format neacceptat de canvas (ex. HEIC pe un browser care nu-l decodează):
-    // urcăm originalul, mai bine decât să blocăm upload-ul.
+    // Format neacceptat de canvas (ex. HEIC pe unele browsere): întoarcem
+    // originalul. Dacă depășește limita, Cloudinary îl va respinge cu un mesaj
+    // clar — pe care admin-ul îl vede acum în alertă.
     return file;
   }
 }
