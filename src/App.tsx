@@ -3,15 +3,17 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import FloatingAboutButton from './components/FloatingAboutButton';
 import LocaleLayout from './components/LocaleLayout';
+import BrandedRouteLoader from './components/BrandedRouteLoader';
+import { loadAboutMe, loadAdminRoute, loadArchive, loadLoginRoute, loadProjectDetails } from './lib/routePreloads';
 
-const AboutMe = lazy(() => import('./pages/AboutMe'));
-const Archive = lazy(() => import('./pages/Archive'));
-const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
-const AdminRoute = lazy(() => import('./pages/AdminRoute'));
-const LoginRoute = lazy(() => import('./pages/LoginRoute'));
+const AboutMe = lazy(loadAboutMe);
+const Archive = lazy(loadArchive);
+const ProjectDetails = lazy(loadProjectDetails);
+const AdminRoute = lazy(loadAdminRoute);
+const LoginRoute = lazy(loadLoginRoute);
 
 function LazyFallback() {
-  return <div className="min-h-svh" />;
+  return <BrandedRouteLoader />;
 }
 
 function LazyPage({ children }: { children: ReactNode }) {

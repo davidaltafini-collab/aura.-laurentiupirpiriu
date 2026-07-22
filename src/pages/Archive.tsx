@@ -15,7 +15,7 @@ import { breadcrumbJsonLd } from '../lib/seoSchemas';
 import { scrollToPageTop } from '../lib/scroll';
 
 export default function Archive() {
-  const { projects } = useProjects();
+  const { projects } = useProjects({ immediateFallback: true });
   const locale = useLocale();
   const { t } = useTranslation();
   const siteUrl = useSiteUrl();

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
+import { type MouseEvent, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProjects } from '../hooks/useProjects';
@@ -18,18 +19,52 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import { photographyBusinessJsonLd, faqJsonLd, BUSINESS } from '../lib/seoSchemas';
 import { HOME_FAQ, faqQuestion, faqAnswer } from '../data/faq';
 import { scrollToPageTop } from '../lib/scroll';
+import { preloadArchive, preloadProjectDetails, warmPublicRoutes } from '../lib/routePreloads';
+
+const warmedImages = new Set<string>();
+
+function warmImage(src: string) {
+  if (typeof window === 'undefined' || !src || warmedImages.has(src)) return;
+  warmedImages.add(src);
+  const image = new Image();
+  image.decoding = 'async';
+  image.src = src;
+}
 
 export default function Home() {
-  const { projects } = useProjects();
+  const { projects } = useProjects({ immediateFallback: true });
   const locale = useLocale();
   const { t } = useTranslation();
   const siteUrl = useSiteUrl();
   const location = useLocation();
   const lp = useLocalizedPath();
   const featuredProjects = projects.filter(p => p.featured);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   // Pornește de la scale-105, scara pe care o avea deja poza în repaus.
   const { ref: heroRef, scale: heroScale, y: heroY } = useHeroParallax(1.05, 0.38, 0.16);
+
+  useEffect(() => warmPublicRoutes(), []);
+
+  useEffect(() => {
+    if (!selectedProjectId) return;
+    const timeout = window.setTimeout(() => setSelectedProjectId(null), 6000);
+    return () => window.clearTimeout(timeout);
+  }, [selectedProjectId]);
+
+  const warmProject = (project: typeof featuredProjects[number]) => {
+    preloadProjectDetails();
+    warmImage(project.coverImage);
+    project.gallery.slice(0, 2).forEach(warmImage);
+  };
+
+  const handleProjectClick = (event: MouseEvent<HTMLAnchorElement>, project: typeof featuredProjects[number]) => {
+    warmProject(project);
+    const coarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (!coarsePointer || event.detail === 0 || selectedProjectId === project.id) return;
+    event.preventDefault();
+    setSelectedProjectId(project.id);
+  };
 
   return (
     <div className="min-h-svh font-sans selection:bg-black selection:text-white">
@@ -155,36 +190,55 @@ export default function Home() {
       <section id="work" className="py-24 px-4 md:px-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-24 px-2 gap-4">
           <h2 className="font-display text-5xl md:text-7xl font-bold tracking-tighter uppercase">{t('home.workHeading1')}<br/>{t('home.workHeading2')}</h2>
-          <Link to={lp('/archive')} className="flex items-center gap-2 font-medium text-sm md:text-lg hover:opacity-60 transition-opacity uppercase tracking-widest md:normal-case md:tracking-normal">
+          <Link
+            to={lp('/archive')}
+            onFocus={preloadArchive}
+            onMouseEnter={preloadArchive}
+            onTouchStart={preloadArchive}
+            className="flex items-center gap-2 font-medium text-sm md:text-lg hover:opacity-60 transition-opacity uppercase tracking-widest md:normal-case md:tracking-normal"
+          >
             {t('home.viewArchive')} <ArrowRight size={16} className="md:w-5 md:h-5" />
           </Link>
         </div>
 
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 md:gap-8 space-y-6 md:space-y-8">
-          {featuredProjects.map((project, i) => (
+          {featuredProjects.map((project, i) => {
+            const selected = selectedProjectId === project.id;
+            const projectUrl = lp(`/project/${project.id}`);
+
+            return (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6, delay: i % 3 * 0.1 }}
-              className="relative group overflow-hidden rounded-[1.5rem] md:rounded-[2rem] break-inside-avoid shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] transition-shadow duration-500"
+              className={`relative group overflow-hidden rounded-[1.5rem] md:rounded-[2rem] break-inside-avoid shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] transition-[box-shadow,transform] duration-200 ease-out hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] focus-within:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] ${selected ? 'captur-project-card--selected scale-[1.015] shadow-[0_24px_70px_-18px_rgba(0,0,0,0.28)]' : ''}`}
             >
-              <img
-                src={project.coverImage}
-                alt={projectTitle(project, locale)}
-                loading="lazy"
-                className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500 flex items-center justify-center">
-                <div className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
-                  <Link to={lp(`/project/${project.id}`)} className="bg-white/90 backdrop-blur-sm text-black px-8 py-3 rounded-full font-medium text-sm tracking-wider uppercase inline-block">
+              <Link
+                to={projectUrl}
+                onClick={(event) => handleProjectClick(event, project)}
+                onFocus={() => warmProject(project)}
+                onMouseEnter={() => warmProject(project)}
+                onTouchStart={() => warmProject(project)}
+                aria-label={`${t('home.viewProject')}: ${projectTitle(project, locale)}`}
+                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-[#f8f8f7]"
+              >
+                <img
+                  src={project.coverImage}
+                  alt={projectTitle(project, locale)}
+                  loading="lazy"
+                  className={`w-full h-auto object-cover transform transition-transform duration-700 ease-out group-hover:scale-105 group-focus-within:scale-105 ${selected ? 'scale-105' : ''}`}
+                />
+                <div className={`absolute inset-0 transition-colors duration-200 ease-out flex items-center justify-center ${selected ? 'bg-black/20' : 'bg-black/0 group-hover:bg-black/20 group-focus-within:bg-black/20'}`}>
+                  <span className={`bg-white/90 backdrop-blur-sm text-black px-8 py-3 rounded-full font-medium text-sm tracking-wider uppercase inline-flex items-center gap-2 transform transition-[opacity,transform] duration-200 ease-out ${selected ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0'}`}>
                     {t('home.viewProject')}
-                  </Link>
+                  </span>
                 </div>
-              </div>
+              </Link>
             </motion.div>
-          ))}
+          );
+          })}
         </div>
       </section>
 

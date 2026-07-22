@@ -12,13 +12,14 @@ import { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import BrandLockup from '../components/BrandLockup';
+import BrandedRouteLoader from '../components/BrandedRouteLoader';
 import { breadcrumbJsonLd, projectJsonLd } from '../lib/seoSchemas';
 import { scrollToPageTop } from '../lib/scroll';
 
 export default function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-  const { projects, loading } = useProjects();
+  const { projects, loading } = useProjects({ immediateFallback: true });
   const locale = useLocale();
   const { t } = useTranslation();
   const siteUrl = useSiteUrl();
@@ -43,8 +44,8 @@ export default function ProjectDetails() {
   // Hook-ul stă înaintea return-urilor timpurii de mai jos (regula hooks).
   const { ref: heroRef, scale: heroScale, y: heroY } = useHeroParallax(1, 0.36, 0.15);
 
-  if (loading) {
-    return <div className="min-h-svh" />;
+  if (loading && !project) {
+    return <BrandedRouteLoader />;
   }
 
   if (!project) {
