@@ -87,7 +87,7 @@ export default function FloatingAboutButton() {
             >
               <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
                 <path id="aboutButtonCirclePath" d="M 50, 50 m 0, -43 a 43,43 0 1,1 0,86 a 43,43 0 1,1 0,-86" fill="none" />
-                <text fill="white" fontSize="7.4" fontWeight="900" letterSpacing="0" textLength="270" lengthAdjust="spacing" className="font-sans uppercase">
+                <text fill="white" fontSize="8.88" fontWeight="900" letterSpacing="0" textLength="270" lengthAdjust="spacing" className="font-sans uppercase">
                   <textPath href="#aboutButtonCirclePath" startOffset="0">
                     {ringText}
                   </textPath>
