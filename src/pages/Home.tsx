@@ -19,17 +19,7 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import { photographyBusinessJsonLd, faqJsonLd, BUSINESS } from '../lib/seoSchemas';
 import { HOME_FAQ, faqQuestion, faqAnswer } from '../data/faq';
 import { scrollToPageTop } from '../lib/scroll';
-import { preloadArchive, preloadProjectDetails, warmPublicRoutes } from '../lib/routePreloads';
-
-const warmedImages = new Set<string>();
-
-function warmImage(src: string) {
-  if (typeof window === 'undefined' || !src || warmedImages.has(src)) return;
-  warmedImages.add(src);
-  const image = new Image();
-  image.decoding = 'async';
-  image.src = src;
-}
+import { preloadArchive, preloadProjectAssets, warmPublicRoutes } from '../lib/routePreloads';
 
 export default function Home() {
   const { projects } = useProjects({ immediateFallback: true });
@@ -44,7 +34,7 @@ export default function Home() {
   // Pornește de la scale-105, scara pe care o avea deja poza în repaus.
   const { ref: heroRef, scale: heroScale, y: heroY } = useHeroParallax(1.05, 0.38, 0.16);
 
-  useEffect(() => warmPublicRoutes(), []);
+  useEffect(() => warmPublicRoutes(3000), []);
 
   useEffect(() => {
     if (!selectedProjectId) return;
@@ -53,9 +43,7 @@ export default function Home() {
   }, [selectedProjectId]);
 
   const warmProject = (project: typeof featuredProjects[number]) => {
-    preloadProjectDetails();
-    warmImage(project.coverImage);
-    project.gallery.slice(0, 2).forEach(warmImage);
+    preloadProjectAssets(project);
   };
 
   const handleProjectClick = (event: MouseEvent<HTMLAnchorElement>, project: typeof featuredProjects[number]) => {

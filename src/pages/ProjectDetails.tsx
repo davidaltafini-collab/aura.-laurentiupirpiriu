@@ -15,6 +15,7 @@ import BrandLockup from '../components/BrandLockup';
 import BrandedRouteLoader from '../components/BrandedRouteLoader';
 import { breadcrumbJsonLd, projectJsonLd } from '../lib/seoSchemas';
 import { scrollToPageTop } from '../lib/scroll';
+import { preloadImage } from '../lib/routePreloads';
 
 export default function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,7 @@ export default function ProjectDetails() {
   const project = projects.find(p => p.id === id);
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [readyCoverImage, setReadyCoverImage] = useState<string | null>(null);
 
   const fromArchive = location.state?.from === 'archive';
   const backLink = fromArchive ? lp('/archive') : `${lp('/')}#work`;
@@ -39,6 +41,30 @@ export default function ProjectDetails() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
+
+  useEffect(() => {
+    if (!project?.coverImage) {
+      setReadyCoverImage(null);
+      return;
+    }
+
+    let active = true;
+    const src = project.coverImage;
+    const timeout = window.setTimeout(() => {
+      if (active) setReadyCoverImage(src);
+    }, 3500);
+
+    preloadImage(src).then(() => {
+      if (!active) return;
+      window.clearTimeout(timeout);
+      setReadyCoverImage(src);
+    });
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+    };
+  }, [project?.coverImage]);
 
   // Pornește de la scale(1), scara pe care o avea deja poza în repaus.
   // Hook-ul stă înaintea return-urilor timpurii de mai jos (regula hooks).
@@ -57,6 +83,10 @@ export default function ProjectDetails() {
         </div>
       </div>
     );
+  }
+
+  if (readyCoverImage !== project.coverImage) {
+    return <BrandedRouteLoader />;
   }
 
   // Find next project
