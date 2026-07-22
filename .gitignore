@@ -6,9 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
-.claude/
-.impeccable/
 .vercel
-assets/.aistudio/
 .playwright-cli/
 output/playwright/

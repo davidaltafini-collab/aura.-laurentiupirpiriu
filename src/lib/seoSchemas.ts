@@ -10,7 +10,7 @@ export const BUSINESS = {
   sameAs: [] as string[],
 };
 
-const DEFAULT_OG_IMAGE = '/placeholders/wedding-2.jpg';
+const DEFAULT_OG_IMAGE = '/placeholders/wedding-2.webp';
 
 export function photographyBusinessJsonLd(siteUrl: string) {
   return {

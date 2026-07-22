@@ -1,6 +1,4 @@
-import { supabase, isSupabaseConfigured } from './supabaseClient';
-import { uploadImageToCloudinary } from './cloudinary';
-import { Project, projects as fallbackProjects } from '../data';
+import { Project } from '../data';
 
 interface ProjectRow {
   id: string;
@@ -50,23 +48,6 @@ function projectToRow(project: Partial<Project>): Partial<ProjectRow> {
   return row;
 }
 
-export async function fetchProjects(): Promise<Project[]> {
-  if (!isSupabaseConfigured) return fallbackProjects;
-
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .order('sort_order', { ascending: true });
-
-  if (error) {
-    console.error('[projects] Eroare la citirea din Supabase, folosesc datele placeholder locale:', error.message);
-    return fallbackProjects;
-  }
-  if (!data || data.length === 0) return fallbackProjects;
-
-  return (data as ProjectRow[]).map(rowToProject);
-}
-
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -77,6 +58,7 @@ function slugify(text: string): string {
 }
 
 export async function createProject(): Promise<Project> {
+  const { supabase } = await import('./supabaseClient');
   const slug = slugify(`proiect-nou-${Date.now()}`);
   const { data, error } = await supabase
     .from('projects')
@@ -86,7 +68,7 @@ export async function createProject(): Promise<Project> {
       title_en: 'New Project',
       location: 'Locație',
       event_date: 'Dată',
-      cover_image_url: '/placeholders/wedding-2.jpg',
+      cover_image_url: '/placeholders/wedding-2.webp',
       gallery_image_urls: [],
       description_ro: 'Descrierea proiectului vine aici.',
       description_en: 'Project description goes here.',
@@ -101,17 +83,20 @@ export async function createProject(): Promise<Project> {
 }
 
 export async function updateProject(id: string, patch: Partial<Project>): Promise<void> {
+  const { supabase } = await import('./supabaseClient');
   const row = projectToRow(patch);
   const { error } = await supabase.from('projects').update(row).eq('id', id);
   if (error) throw error;
 }
 
 export async function deleteProject(id: string): Promise<void> {
+  const { supabase } = await import('./supabaseClient');
   const { error } = await supabase.from('projects').delete().eq('id', id);
   if (error) throw error;
 }
 
 export async function reorderProjects(orderedIds: string[]): Promise<void> {
+  const { supabase } = await import('./supabaseClient');
   await Promise.all(
     orderedIds.map((id, index) =>
       supabase.from('projects').update({ sort_order: index }).eq('id', id)
@@ -120,5 +105,6 @@ export async function reorderProjects(orderedIds: string[]): Promise<void> {
 }
 
 export async function uploadProjectImage(file: File): Promise<string> {
+  const { uploadImageToCloudinary } = await import('./cloudinary');
   return uploadImageToCloudinary(file);
 }

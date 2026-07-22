@@ -104,7 +104,7 @@ export default function AboutMe() {
             {t('about.recommendedBy')}
           </h2>
           <img
-            src="/recommended-by.png"
+            src="/recommended-by.webp"
             alt={t('about.recommendedByAlt')}
             className="h-28 w-28 md:h-36 md:w-36 rounded-full object-cover shadow-[0_18px_45px_-18px_rgba(0,0,0,0.45)] outline outline-1 outline-offset-[-1px] outline-black/10"
           />
@@ -114,7 +114,7 @@ export default function AboutMe() {
       <section id="about-contact" className="py-16 md:py-40 px-4 md:px-10">
         <div className="max-w-[95vw] mx-auto bg-black text-white rounded-[2rem] md:rounded-[4rem] p-6 md:p-24 relative overflow-hidden shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8 md:gap-16">
           <div className="absolute inset-0 opacity-20 pointer-events-none">
-             <img src="/placeholders/wedding-7.jpg" alt="" className="w-full h-full object-cover" />
+             <img src="/placeholders/wedding-7.webp" alt="" className="w-full h-full object-cover" />
           </div>
 
           <div className="relative z-10 w-full md:w-3/5">

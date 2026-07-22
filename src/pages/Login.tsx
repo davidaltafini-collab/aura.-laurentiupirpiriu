@@ -43,7 +43,7 @@ export default function Login() {
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          src="/placeholders/wedding-1.jpg"
+          src="/placeholders/wedding-1.webp"
           alt="CAPTUR."
           className="absolute inset-0 w-full h-full object-cover"
         />

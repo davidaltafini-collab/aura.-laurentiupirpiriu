@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Project } from '../data';
-import { fetchProjects } from '../lib/projects';
+import { fetchProjects } from '../lib/publicProjects';
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);

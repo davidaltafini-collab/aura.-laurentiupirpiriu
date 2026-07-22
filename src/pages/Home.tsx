@@ -70,7 +70,7 @@ export default function Home() {
           fix (mt), ca poza + header să încapă pe un singur ecran. */}
       <section ref={heroRef} className="h-[calc((var(--vh,1svh)*100)-9rem)] md:h-[calc((var(--vh,1svh)*100)-11rem)] w-[95vw] mx-auto mt-3 md:mt-4 relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
         <motion.img
-          src="/placeholders/wedding-2.jpg"
+          src="/placeholders/wedding-2.webp"
           alt="Wedding couple"
           style={{ scale: heroScale, y: heroY }}
           className="absolute inset-0 w-full h-full object-cover"
@@ -129,7 +129,7 @@ export default function Home() {
               className="aspect-[4/5] w-full rounded-[2rem] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] relative"
             >
               <img
-                src="/placeholders/wedding-4.jpg"
+                src="/placeholders/wedding-4.webp"
                 alt="Photographer"
                 className="w-full h-full object-cover"
               />
@@ -142,7 +142,7 @@ export default function Home() {
               className="absolute -bottom-6 -right-6 md:-bottom-10 md:-left-20 aspect-square w-40 md:w-64 rounded-full overflow-hidden shadow-2xl border-4 border-[#f8f8f7]"
             >
               <img
-                src="/placeholders/wedding-4.jpg"
+                src="/placeholders/wedding-4.webp"
                 alt="Drone detail"
                 className="w-full h-full object-cover"
               />
@@ -197,7 +197,7 @@ export default function Home() {
         <div className="max-w-[95vw] mx-auto bg-black text-white rounded-[2rem] md:rounded-[4rem] p-6 md:p-24 relative overflow-hidden shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8 md:gap-16">
 
           <div className="absolute inset-0 opacity-20 pointer-events-none">
-             <img src="/placeholders/wedding-7.jpg" alt="texture" className="w-full h-full object-cover" />
+             <img src="/placeholders/wedding-7.webp" alt="texture" className="w-full h-full object-cover" />
           </div>
 
           <div className="relative z-10 w-full md:w-3/5">
