@@ -71,9 +71,17 @@ create table if not exists leads (
   event_date text,
   locale text,
   source_page text,
+  -- „Trimite o poză" din footer: kind='photo', image_url = poza din Cloudinary,
+  -- ip_hash = sha256 al IP-ului pentru rate-limit anti-bot (vezi migration_2).
+  image_url text,
+  ip_hash text,
+  kind text not null default 'contact',
   status text not null default 'new',
   created_at timestamptz not null default now()
 );
+
+create index if not exists leads_photo_ratelimit_idx
+  on leads (ip_hash, kind, created_at);
 
 alter table leads enable row level security;
 

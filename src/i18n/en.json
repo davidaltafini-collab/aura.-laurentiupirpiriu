@@ -62,5 +62,23 @@
   },
   "areasServed": {
     "heading": "Areas We Serve"
+  },
+  "photoModal": {
+    "trigger": "Send a photo",
+    "title": "Send a photo",
+    "subtitle": "to Laurentiu Pirpiriu",
+    "browseTitle": "Choose a photo",
+    "browseHint": "or drag and drop here",
+    "takePhoto": "Take a photo",
+    "changePhoto": "Change photo",
+    "emailPlaceholder": "Your email",
+    "messagePlaceholder": "Add a message (optional)...",
+    "send": "Send photo",
+    "sending": "Sending...",
+    "sentTitle": "Sent! Thank you.",
+    "sentBody": "Laurentiu received your photo.",
+    "alreadySent": "You already sent a photo this session. Thank you!",
+    "rateLimited": "You already sent a photo recently. Please try again later.",
+    "genericError": "Could not send the photo. Please try again."
   }
 }

@@ -76,3 +76,39 @@ export async function compressImage(file: File): Promise<File> {
     return file;
   }
 }
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Redimensionează ÎNTOTDEAUNA o imagine și o întoarce ca data URL (base64).
+ * Folosit de „Trimite o poză" din footer: poza pleacă prin API-ul nostru ca
+ * JSON, deci o vrem mică (payload sub limita serverless) — nu are nevoie de
+ * calitate de portofoliu. Diferă de compressImage, care păstrează originalul
+ * dacă e deja acceptabil.
+ */
+export async function compressToDataUrl(file: File, maxDimension = 1600, quality = 0.8): Promise<string> {
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close();
+      return fileToDataUrl(file);
+    }
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    return canvas.toDataURL('image/jpeg', quality);
+  } catch {
+    return fileToDataUrl(file);
+  }
+}

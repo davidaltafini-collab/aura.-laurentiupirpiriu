@@ -71,6 +71,32 @@ export async function sendLeadEmails(lead: LeadInput) {
   ]);
 }
 
+// Notificare către Laurentiu când un vizitator trimite o poză din footer.
+export async function sendPhotoSubmissionEmail(input: { email: string; message: string; imageUrl: string }) {
+  const transporter = getTransporter();
+  const fromAddress = process.env.EMAIL_USER!;
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+  if (!adminEmail) {
+    throw new Error('Lipsește ADMIN_NOTIFICATION_EMAIL din variabilele de mediu Vercel.');
+  }
+
+  await transporter.sendMail({
+    from: `"Aura — Site" <${fromAddress}>`,
+    to: adminEmail,
+    replyTo: input.email,
+    subject: 'Poză nouă trimisă de un vizitator',
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;">
+        <h2 style="margin-bottom:16px;">Ai primit o poză</h2>
+        <p style="color:#666;">De la: <strong>${escapeHtml(input.email)}</strong></p>
+        ${input.message ? `<p style="margin-top:12px;white-space:pre-wrap;">${escapeHtml(input.message)}</p>` : ''}
+        <p style="margin-top:16px;"><a href="${input.imageUrl}">Deschide poza în mărime completă</a></p>
+        <img src="${input.imageUrl}" alt="Poză trimisă" style="max-width:100%;border-radius:12px;margin-top:8px;" />
+      </div>
+    `,
+  });
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')

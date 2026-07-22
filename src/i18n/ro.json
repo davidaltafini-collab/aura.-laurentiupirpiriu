@@ -62,5 +62,23 @@
   },
   "areasServed": {
     "heading": "Zone deservite"
+  },
+  "photoModal": {
+    "trigger": "Trimite o poză",
+    "title": "Trimite o poză",
+    "subtitle": "către Laurentiu Pirpiriu",
+    "browseTitle": "Alege o poză",
+    "browseHint": "sau trage și lasă aici",
+    "takePhoto": "Fă o poză",
+    "changePhoto": "Schimbă poza",
+    "emailPlaceholder": "Emailul tău",
+    "messagePlaceholder": "Adaugă un mesaj (opțional)...",
+    "send": "Trimite poza",
+    "sending": "Se trimite...",
+    "sentTitle": "Trimis! Mulțumim.",
+    "sentBody": "Laurentiu a primit poza ta.",
+    "alreadySent": "Ai trimis deja o poză în această sesiune. Mulțumim!",
+    "rateLimited": "Ai trimis deja o poză recent. Mai încearcă peste puțin timp.",
+    "genericError": "Nu am putut trimite poza. Încearcă din nou."
   }
 }

@@ -564,18 +564,28 @@ export default function Admin() {
               {leads.map(lead => (
                 <div key={lead.id} className="bg-white p-6 rounded-[1.5rem] shadow-sm border border-gray-100">
                   <div className="flex flex-col md:flex-row justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-bold text-lg">{lead.name}</h3>
-                        {lead.status === 'new' && (
-                          <span className="text-xs uppercase tracking-wide bg-red-50 text-red-500 px-2 py-1 rounded-full font-medium">Nou</span>
-                        )}
+                    <div className="flex gap-4">
+                      {lead.imageUrl && (
+                        <a href={lead.imageUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-gray-200 hover:opacity-90 transition-opacity">
+                          <img src={lead.imageUrl} alt="Poză trimisă" className="w-full h-full object-cover" />
+                        </a>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h3 className="font-bold text-lg">{lead.name}</h3>
+                          {lead.kind === 'photo' && (
+                            <span className="text-xs uppercase tracking-wide bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-medium">Poză</span>
+                          )}
+                          {lead.status === 'new' && (
+                            <span className="text-xs uppercase tracking-wide bg-red-50 text-red-500 px-2 py-1 rounded-full font-medium">Nou</span>
+                          )}
+                        </div>
+                        <a href={`mailto:${lead.email}`} className="text-sm text-gray-500 hover:text-black">{lead.email}</a>
+                        {lead.phone && <span className="text-sm text-gray-500 ml-3">{lead.phone}</span>}
+                        {lead.eventDate && <p className="text-sm text-gray-400 mt-1">Data eveniment: {lead.eventDate}</p>}
+                        {lead.message && <p className="text-gray-700 mt-3 max-w-xl">{lead.message}</p>}
+                        <p className="text-xs text-gray-400 mt-3">{new Date(lead.createdAt).toLocaleString('ro-RO')}</p>
                       </div>
-                      <a href={`mailto:${lead.email}`} className="text-sm text-gray-500 hover:text-black">{lead.email}</a>
-                      {lead.phone && <span className="text-sm text-gray-500 ml-3">{lead.phone}</span>}
-                      {lead.eventDate && <p className="text-sm text-gray-400 mt-1">Data eveniment: {lead.eventDate}</p>}
-                      {lead.message && <p className="text-gray-700 mt-3 max-w-xl">{lead.message}</p>}
-                      <p className="text-xs text-gray-400 mt-3">{new Date(lead.createdAt).toLocaleString('ro-RO')}</p>
                     </div>
                     <div className="flex md:flex-col gap-2 shrink-0">
                       {lead.status !== 'contacted' && (

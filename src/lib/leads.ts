@@ -8,6 +8,8 @@ export interface Lead {
   message: string | null;
   eventDate: string | null;
   sourcePage: string | null;
+  imageUrl: string | null;
+  kind: string;
   status: string;
   createdAt: string;
 }
@@ -20,6 +22,8 @@ interface LeadRow {
   message: string | null;
   event_date: string | null;
   source_page: string | null;
+  image_url: string | null;
+  kind: string | null;
   status: string;
   created_at: string;
 }
@@ -33,6 +37,8 @@ function rowToLead(row: LeadRow): Lead {
     message: row.message,
     eventDate: row.event_date,
     sourcePage: row.source_page,
+    imageUrl: row.image_url ?? null,
+    kind: row.kind ?? 'contact',
     status: row.status,
     createdAt: row.created_at,
   };

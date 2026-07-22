@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { ArrowLeft, ArrowRight, Lock } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -34,79 +34,119 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-svh font-sans bg-[#f8f8f7] selection:bg-black selection:text-white flex flex-col">
-      {/* Nav */}
-      <nav className="p-4 md:p-10 flex justify-between items-center bg-transparent z-50">
-        <Link to="/" className="font-display font-bold text-xl md:text-2xl tracking-tighter hover:opacity-60 transition-opacity">
-          AURA.
-        </Link>
-        <Link to="/" className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase text-gray-500 hover:text-black transition-colors">
-          <ArrowLeft size={16} /> <span className="hidden sm:inline">Back Home</span><span className="sm:hidden">Back</span>
-        </Link>
-      </nav>
+    <div className="min-h-svh font-sans bg-white selection:bg-black selection:text-white flex flex-col md:flex-row">
+      {/* Panou imagine (ascuns pe mobil) */}
+      <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-gray-100 relative overflow-hidden">
+        <motion.img
+          initial={{ scale: 1.1, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          src="/placeholders/wedding-1.jpg"
+          alt="Aura"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute top-10 left-10 z-10">
+          <Link to="/" className="font-display font-bold text-2xl tracking-tighter text-white hover:opacity-80 transition-opacity duration-300">
+            AURA.
+          </Link>
+        </div>
+        <div className="absolute bottom-12 left-12 z-10 text-white max-w-lg">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <h2 className="text-4xl lg:text-6xl font-display tracking-tighter font-bold mb-6 leading-[1.05]">
+              În spatele fiecărui cadru,<br />o poveste.
+            </h2>
+            <p className="text-white/80 font-medium text-lg">
+              Acces doar pentru echipă.
+            </p>
+          </motion.div>
+        </div>
+      </div>
 
-      {/* Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md bg-white p-10 md:p-14 rounded-[2rem] shadow-2xl relative overflow-hidden"
-        >
-          <div className="absolute top-0 left-0 w-full h-2 bg-black"></div>
-          
-          <div className="mb-10 text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Lock size={24} className="text-black" />
-            </div>
-            <h1 className="font-display text-3xl font-bold tracking-tighter uppercase mb-2">Workspace Access</h1>
-            <p className="text-gray-500 text-sm">Intră cu contul tău ca să administrezi portofoliul.</p>
-          </div>
+      {/* Panou formular */}
+      <div className="flex-1 flex flex-col min-h-svh relative">
+        {/* Nav mobil */}
+        <nav className="p-6 flex md:hidden justify-between items-center bg-white z-50">
+          <Link to="/" className="font-display font-bold text-xl tracking-tighter hover:opacity-60 transition-opacity">
+            AURA.
+          </Link>
+          <Link to="/" className="flex items-center gap-2 font-medium text-xs tracking-wide uppercase text-gray-500 hover:text-black transition-colors">
+            <ArrowLeft size={16} /> Înapoi
+          </Link>
+        </nav>
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-5">
-            <div>
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => { setEmail(e.target.value); setError(null); }}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-6 py-4 focus:outline-none focus:border-black transition-colors"
-                autoComplete="username"
-                required
-              />
-            </div>
-            <div>
-              <input
-                type="password"
-                placeholder="Parolă"
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(null); }}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-6 py-4 focus:outline-none focus:border-black transition-colors"
-                autoComplete="current-password"
-                required
-              />
-            </div>
+        {/* Buton back desktop */}
+        <div className="hidden md:block absolute top-10 right-12 z-50">
+          <Link to="/" className="flex items-center gap-2 font-medium text-xs tracking-widest uppercase text-gray-400 hover:text-black transition-colors">
+            Înapoi la site
+          </Link>
+        </div>
 
-            {error && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-red-500 text-sm text-center font-medium"
-              >
-                {error}
-              </motion.p>
-            )}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="mt-4 w-full bg-black text-white rounded-xl px-8 py-4 font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+        <div className="flex-1 flex items-center justify-center p-8 sm:p-12 lg:p-24">
+          <div className="w-full max-w-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              {submitting ? 'Se conectează...' : 'Sign In'}
-              {!submitting && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
-            </button>
-          </form>
-        </motion.div>
+              <h1 className="font-display text-4xl lg:text-5xl font-bold tracking-tighter mb-4">Bine ai revenit.</h1>
+              <p className="text-gray-500 mb-12 text-lg">Intră cu contul tău ca să administrezi portofoliul.</p>
+
+              <form onSubmit={handleLogin} className="flex flex-col gap-8">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Email</label>
+                  <input
+                    type="email"
+                    placeholder="nume@exemplu.ro"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError(null); }}
+                    className="w-full bg-transparent border-b-2 border-gray-200 py-3 text-lg focus:outline-none focus:border-black transition-colors placeholder:text-gray-300"
+                    autoComplete="username"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Parolă</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setError(null); }}
+                    className="w-full bg-transparent border-b-2 border-gray-200 py-3 text-lg focus:outline-none focus:border-black transition-colors placeholder:text-gray-300"
+                    autoComplete="current-password"
+                    required
+                  />
+                </div>
+
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <p className="text-red-500 text-sm font-medium pt-2">{error}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="mt-4 w-full bg-black text-white rounded-full px-8 py-5 text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? 'Se conectează...' : 'Intră în workspace'}
+                  {!submitting && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        </div>
       </div>
     </div>
   );
