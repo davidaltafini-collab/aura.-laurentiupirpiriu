@@ -1,6 +1,6 @@
 # CAPTUR. — Wedding & Drone Cinematography
 
-Site-ul lui Laurentiu Pirpiriu: portofoliu foto/video, formular de contact real,
+Site-ul lui Laurentiu Pirpiliu: portofoliu foto/video, formular de contact real,
 panou de administrare, SEO + GEO. React 19 + TypeScript + Vite + Tailwind v4 +
 Supabase (bază de date, autentificare, storage poze) + funcții serverless Vercel.
 

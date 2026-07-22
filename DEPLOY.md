@@ -1,4 +1,4 @@
-# Ghid de lansare — CAPTUR. (Laurentiu Pirpiriu Photography)
+# Ghid de lansare — CAPTUR. (Laurentiu Pirpiliu Photography)
 
 Acest ghid te duce de la codul din acest repo până la site live, gratuit, pe un
 subdomeniu Vercel. Toți pașii de mai jos se fac o singură dată.

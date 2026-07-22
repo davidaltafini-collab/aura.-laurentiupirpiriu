@@ -1,4 +1,4 @@
--- Schema Supabase pentru site-ul CAPTUR. (Laurentiu Pirpiriu Photography)
+-- Schema Supabase pentru site-ul CAPTUR. (Laurentiu Pirpiliu Photography)
 --
 -- CUM SE RULEAZĂ:
 -- 1. Creează un proiect gratuit pe https://supabase.com

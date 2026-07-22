@@ -1,4 +1,4 @@
-# Progress — CAPTUR. (Laurentiu Pirpiriu Photography)
+# Progress — CAPTUR. (Laurentiu Pirpiliu Photography)
 
 Document viu de tracking pentru implementarea backend-ului, SEO și GEO. Actualizat pe măsură ce se lucrează. Planul complet original: vezi discuția din sesiunea de plan (rezumat mai jos, la fiecare fază).
 
@@ -71,7 +71,7 @@ să fie reutilizată pentru asta.
 
 ## Faza 5 — Performanță & polish
 - [x] Lazy loading imagini (except hero) — `loading="lazy"` pe imaginile din grile/galerii
-- [x] Consistență branding: „CAPTUR." (comercial) + Laurentiu Pirpiriu (fotograful) — aplicat în schema.org, meta tags, copy About
+- [x] Consistență branding: „CAPTUR." (comercial) + Laurentiu Pirpiliu (fotograful) — aplicat în schema.org, meta tags, copy About
 - [x] Code-splitting: `Admin`/`Login` încărcate lazy (`React.lazy` + `Suspense` în `App.tsx`) — nu mai umflă bundle-ul public cu cod folosit doar de Laurentiu
 - [ ] Verificare Core Web Vitals / Lighthouse — recomand rulare după ce sunt poze reale (Unsplash-urile placeholder nu sunt reprezentative pentru performanța finală)
 
@@ -109,4 +109,4 @@ nu e posibil din vreun motiv.
 - Email: Gmail SMTP acum → Zoho Mail mai târziu (doar schimbare de config, nu de cod)
 - GEO: SEO local + optimizare pentru motoare AI, ambele
 - Limbă: Română principal, Engleză secundar
-- Brand: „CAPTUR." (comercial) + Laurentiu Pirpiriu (fotograful din spate)
+- Brand: „CAPTUR." (comercial) + Laurentiu Pirpiliu (fotograful din spate)

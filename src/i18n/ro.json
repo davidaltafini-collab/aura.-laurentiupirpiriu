@@ -24,6 +24,7 @@
     "emailPlaceholder": "Emailul tău",
     "phonePlaceholder": "Telefon (opțional)",
     "eventDatePlaceholder": "Data evenimentului (opțional)",
+    "eventDateSelectPlaceholder": "Selectează data",
     "messagePlaceholder": "Povestește-ne pe scurt despre evenimentul vostru",
     "submit": "Trimite cererea",
     "submitting": "Se trimite...",
@@ -66,7 +67,7 @@
   "photoModal": {
     "trigger": "Trimite o poză",
     "title": "Trimite o poză",
-    "subtitle": "către Laurentiu Pirpiriu",
+    "subtitle": "către Laurentiu Pirpiliu",
     "browseTitle": "Alege o poză",
     "browseHint": "sau trage și lasă aici",
     "takePhoto": "Fă o poză",

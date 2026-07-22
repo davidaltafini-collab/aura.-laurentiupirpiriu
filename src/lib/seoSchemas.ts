@@ -8,10 +8,10 @@ import { Project, projectTitle, projectDescription, Locale } from '../data';
  */
 export const BUSINESS = {
   name: 'CAPTUR.',
-  legalName: 'CAPTUR. — Wedding & Drone Cinematography by Laurentiu Pirpiriu',
-  founder: 'Laurentiu Pirpiriu',
-  descriptionRo: 'Fotografie și cinematografie artistică de nuntă, inclusiv filmări cu drona — Laurentiu Pirpiriu documentează povești de dragoste în România și internațional.',
-  descriptionEn: 'Artistic wedding photography and cinematography, including drone footage — Laurentiu Pirpiriu documents love stories across Romania and worldwide.',
+  legalName: 'CAPTUR. — Wedding & Drone Cinematography by Laurentiu Pirpiliu',
+  founder: 'Laurentiu Pirpiliu',
+  descriptionRo: 'Fotografie și cinematografie artistică de nuntă, inclusiv filmări cu drona — Laurentiu Pirpiliu documentează povești de dragoste în România și internațional.',
+  descriptionEn: 'Artistic wedding photography and cinematography, including drone footage — Laurentiu Pirpiliu documents love stories across Romania and worldwide.',
   // TODO: înlocuiește cu datele reale ale afacerii
   telephone: '+40 700 000 000',
   areaServed: ['România', 'Europa'],

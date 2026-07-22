@@ -25,7 +25,7 @@ export default function AboutMe() {
   return (
     <div className="min-h-svh font-sans bg-[#f8f8f7] selection:bg-black selection:text-white">
       <Seo
-        title={locale === 'ro' ? 'Despre Laurentiu Pirpiriu' : 'About Laurentiu Pirpiriu'}
+        title={locale === 'ro' ? 'Despre Laurentiu Pirpiliu' : 'About Laurentiu Pirpiliu'}
         description={t('about.kicker')}
         path={location.pathname}
         jsonLd={breadcrumbJsonLd(siteUrl, [
@@ -55,7 +55,7 @@ export default function AboutMe() {
              transition={{ duration: 0.8 }}
           >
             <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter uppercase leading-[0.9] mb-6 md:mb-8">
-              Laurentiu<br />Pirpiriu
+              Laurentiu<br />Pirpiliu
             </h1>
             <p className="text-lg md:text-2xl font-light text-gray-800 leading-relaxed mb-6">
               {t('about.kicker')}
@@ -83,7 +83,7 @@ export default function AboutMe() {
           >
             <img
               src="/laurentiu.png"
-              alt="Laurentiu Pirpiriu - Cinematographer"
+              alt="Laurentiu Pirpiliu - Cinematographer"
               className="w-full h-full object-cover"
             />
           </motion.div>

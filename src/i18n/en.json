@@ -24,6 +24,7 @@
     "emailPlaceholder": "Your email",
     "phonePlaceholder": "Phone (optional)",
     "eventDatePlaceholder": "Event date (optional)",
+    "eventDateSelectPlaceholder": "Select date",
     "messagePlaceholder": "Tell us a bit about your event",
     "submit": "Send inquiry",
     "submitting": "Sending...",
@@ -66,7 +67,7 @@
   "photoModal": {
     "trigger": "Send a photo",
     "title": "Send a photo",
-    "subtitle": "to Laurentiu Pirpiriu",
+    "subtitle": "to Laurentiu Pirpiliu",
     "browseTitle": "Choose a photo",
     "browseHint": "or drag and drop here",
     "takePhoto": "Take a photo",
