@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, Reorder, useDragControls } from 'motion/react';
-import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2, Undo2 } from 'lucide-react';
+import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2, Check, X, RotateCcw } from 'lucide-react';
 import { Project } from '../data';
 import { useProjects } from '../hooks/useProjects';
 import { useAuth } from '../context/AuthContext';
@@ -12,6 +12,7 @@ import {
   reorderProjects,
   uploadProjectImage,
 } from '../lib/projects';
+import { compressImage } from '../lib/imageCompress';
 import { fetchLeads, updateLeadStatus, Lead } from '../lib/leads';
 
 function ProjectReorderItem({
@@ -73,8 +74,27 @@ const emptyDraft = {
   date: '',
   descriptionRo: '',
   descriptionEn: '',
+  coverImage: '',
+  gallery: [] as string[],
 };
 type Draft = typeof emptyDraft;
+
+// Toate câmpurile unui proiect trăiesc acum în draft: text, copertă ȘI galerie.
+// Orice modificare (editare text, upload, ștergere de poze) atinge doar draft-ul
+// local; nimic nu ajunge în baza de date până la Salvează. Așa există un singur
+// punct de commit (Save) și unul de anulare (Revert), fără confirmări per-acțiune.
+function draftFromProject(p: Project): Draft {
+  return {
+    titleRo: p.titleRo,
+    titleEn: p.titleEn,
+    location: p.location,
+    date: p.date,
+    descriptionRo: p.descriptionRo,
+    descriptionEn: p.descriptionEn,
+    coverImage: p.coverImage,
+    gallery: [...p.gallery],
+  };
+}
 
 export default function Admin() {
   const { projects, setProjects, loading, reload } = useProjects();
@@ -85,13 +105,14 @@ export default function Admin() {
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
   const [savingOrder, setSavingOrder] = useState(false);
-  // Poze marcate pentru ștergere, aplicate abia la Salvează. Vechea variantă
-  // ștergea instant la click, iar butonul stătea într-un overlay `opacity-0`
-  // care rămânea clickabil — pe telefon, unde nu există hover, atingeai poza și
-  // se ștergea fără avertisment și fără drum înapoi.
-  const [pendingPhotoRemovals, setPendingPhotoRemovals] = useState<string[]>([]);
-  const [savingPhotos, setSavingPhotos] = useState(false);
+
+  // Selecție de poze (doar UI): indici în draft.gallery. Indici, nu URL-uri,
+  // pentru că galeria poate conține aceeași poză de două ori. `lastClicked` e
+  // ancora pentru selecția cu Shift (interval), ca în file explorer.
+  const [selectedPhotos, setSelectedPhotos] = useState<Set<number>>(new Set());
+  const [lastClicked, setLastClicked] = useState<number | null>(null);
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
@@ -112,18 +133,11 @@ export default function Admin() {
   const selectedProject = projects.find(p => p.id === selectedProjectId);
 
   useEffect(() => {
-    // Marcajele aparțin proiectului curent — dacă rămâneau la schimbarea
-    // proiectului, un Salvează ulterior ar fi lovit galeria greșită.
-    setPendingPhotoRemovals([]);
+    // Selecția aparține proiectului curent — se golește la schimbare.
+    setSelectedPhotos(new Set());
+    setLastClicked(null);
     if (selectedProject) {
-      setDraft({
-        titleRo: selectedProject.titleRo,
-        titleEn: selectedProject.titleEn,
-        location: selectedProject.location,
-        date: selectedProject.date,
-        descriptionRo: selectedProject.descriptionRo,
-        descriptionEn: selectedProject.descriptionEn,
-      });
+      setDraft(draftFromProject(selectedProject));
     }
   }, [selectedProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -135,7 +149,10 @@ export default function Admin() {
       draft.location !== selectedProject.location ||
       draft.date !== selectedProject.date ||
       draft.descriptionRo !== selectedProject.descriptionRo ||
-      draft.descriptionEn !== selectedProject.descriptionEn
+      draft.descriptionEn !== selectedProject.descriptionEn ||
+      draft.coverImage !== selectedProject.coverImage ||
+      draft.gallery.length !== selectedProject.gallery.length ||
+      draft.gallery.some((url, i) => url !== selectedProject.gallery[i])
     );
   }, [draft, selectedProject]);
 
@@ -149,39 +166,93 @@ export default function Admin() {
     }
   }, [activeTab]);
 
-  const trySelect = (id: string) => {
-    if (isDirty && !confirm('Ai modificări nesalvate la acest proiect. Renunți la ele?')) return;
-    setSelectedProjectId(id);
-  };
-
-  const handleSaveDraft = async () => {
+  // Scrie tot draft-ul (text + copertă + galerie) într-un singur update.
+  const commitDraft = useCallback(async () => {
     if (!selectedProject) return;
+    await updateProject(selectedProject.id, {
+      titleRo: draft.titleRo,
+      titleEn: draft.titleEn,
+      location: draft.location,
+      date: draft.date,
+      descriptionRo: draft.descriptionRo,
+      descriptionEn: draft.descriptionEn,
+      coverImage: draft.coverImage,
+      gallery: draft.gallery,
+    });
+  }, [draft, selectedProject]);
+
+  const handleSave = async (): Promise<boolean> => {
+    if (!isDirty) return true;
     setSaving(true);
     try {
-      await updateProject(selectedProject.id, draft);
+      await commitDraft();
       await reload();
+      return true;
     } catch (err) {
       alert('Nu am putut salva modificările. Încearcă din nou.');
-      console.error(err);
+      console.error('[admin] salvare:', err);
+      return false;
     } finally {
       setSaving(false);
     }
   };
 
+  const handleRevert = () => {
+    if (selectedProject) setDraft(draftFromProject(selectedProject));
+    setSelectedPhotos(new Set());
+    setLastClicked(null);
+  };
+
+  // Auto-save la părăsire. Ref-ul ține mereu ultima stare, ca handler-ul de
+  // cleanup (care rulează la unmount) să nu prindă o valoare veche.
+  const autoSaveRef = useRef({ dirty: false, commit: commitDraft });
+  autoSaveRef.current = { dirty: isDirty, commit: commitDraft };
+  useEffect(() => {
+    // Se declanșează când tot panoul de admin se demontează (logout, navigare
+    // în altă pagină a site-ului). Fetch-ul pornit aici se termină în fundal
+    // chiar dacă componenta dispare.
+    return () => {
+      if (autoSaveRef.current.dirty) {
+        autoSaveRef.current.commit().catch(err => console.error('[admin] auto-save la ieșire:', err));
+      }
+    };
+  }, []);
+
+  const trySelect = async (id: string) => {
+    if (id === selectedProjectId) return;
+    // Fără confirmare: părăsirea proiectului cu modificări nesalvate le salvează.
+    // Dacă salvarea eșuează, rămânem pe proiect ca să nu pierdem modificările.
+    if (isDirty && !(await handleSave())) return;
+    setSelectedProjectId(id);
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !selectedProject) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0 || !selectedProject) return;
     setUploadingGallery(true);
+    setUploadProgress({ done: 0, total: files.length });
+    const uploaded: string[] = [];
     try {
-      const url = await uploadProjectImage(file);
-      await updateProject(selectedProject.id, { gallery: [url, ...selectedProject.gallery] });
-      await reload();
+      // Secvențial, nu în paralel: pozele mari (compresie + upload) ar sufoca
+      // rețeaua telefonului dacă am porni zeci deodată.
+      for (const file of files) {
+        const compressed = await compressImage(file);
+        const url = await uploadProjectImage(compressed);
+        uploaded.push(url);
+        setUploadProgress(p => ({ ...p, done: p.done + 1 }));
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      alert(`Upload-ul pozei a eșuat.\n\n${msg}`);
+      alert(`Upload-ul pozelor a eșuat.\n\n${msg}`);
       console.error('[admin] upload galerie:', err);
     } finally {
+      // Pozele urcate cu succes intră în draft (staged), chiar dacă una a eșuat
+      // la mijloc — nu pierdem munca deja făcută. Se scriu în DB la Salvează.
+      if (uploaded.length > 0) {
+        setDraft(d => ({ ...d, gallery: [...uploaded, ...d.gallery] }));
+      }
       setUploadingGallery(false);
+      setUploadProgress({ done: 0, total: 0 });
       e.target.value = '';
     }
   };
@@ -191,9 +262,9 @@ export default function Admin() {
     if (!file || !selectedProject) return;
     setUploadingCover(true);
     try {
-      const url = await uploadProjectImage(file);
-      await updateProject(selectedProject.id, { coverImage: url });
-      await reload();
+      const compressed = await compressImage(file);
+      const url = await uploadProjectImage(compressed);
+      setDraft(d => ({ ...d, coverImage: url })); // staged, se scrie la Salvează
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       alert(`Upload-ul copertei a eșuat.\n\n${msg}`);
@@ -204,38 +275,47 @@ export default function Admin() {
     }
   };
 
-  const togglePhotoRemoval = (photoUrl: string) => {
-    setPendingPhotoRemovals(prev =>
-      prev.includes(photoUrl) ? prev.filter(url => url !== photoUrl) : [...prev, photoUrl],
-    );
+  // Selecție de poze în stil Apple Photos: click pe poză o comută; Shift+click
+  // selectează tot intervalul de la ultima poză atinsă până la cea curentă.
+  const togglePhoto = (index: number, shiftKey: boolean) => {
+    setSelectedPhotos(prev => {
+      const next = new Set(prev);
+      if (shiftKey && lastClicked !== null) {
+        const from = Math.min(lastClicked, index);
+        const to = Math.max(lastClicked, index);
+        for (let k = from; k <= to; k++) next.add(k);
+      } else if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+    setLastClicked(index);
   };
 
-  const applyPhotoRemovals = async () => {
-    if (!selectedProject || pendingPhotoRemovals.length === 0) return;
-    setSavingPhotos(true);
-    try {
-      await updateProject(selectedProject.id, {
-        gallery: selectedProject.gallery.filter(url => !pendingPhotoRemovals.includes(url)),
-      });
-      setPendingPhotoRemovals([]);
-      await reload();
-    } catch (err) {
-      console.error('[admin] Ștergerea pozelor a eșuat:', err);
-      alert('Nu am putut șterge pozele. Încearcă din nou.');
-    } finally {
-      setSavingPhotos(false);
-    }
+  const clearSelection = () => {
+    setSelectedPhotos(new Set());
+    setLastClicked(null);
+  };
+
+  // Doar scoate pozele din draft (staged). Se aplică în DB abia la Salvează.
+  const removeSelectedPhotos = () => {
+    setDraft(d => ({ ...d, gallery: d.gallery.filter((_, i) => !selectedPhotos.has(i)) }));
+    clearSelection();
   };
 
   const handleDeleteProject = async () => {
     if (!selectedProject) return;
-    if (!confirm('Sigur vrei să ștergi acest proiect?')) return;
+    if (!confirm('Sigur vrei să ștergi acest proiect? Se șterge definitiv, cu tot cu galerie.')) return;
     await deleteProject(selectedProject.id);
     setSelectedProjectId('');
     await reload();
   };
 
   const handleCreateProject = async () => {
+    // Salvează proiectul curent înainte de a-l părăsi; nu continua dacă eșuează.
+    if (isDirty && !(await handleSave())) return;
     const project = await createProject();
     await reload();
     setSelectedProjectId(project.id);
@@ -406,14 +486,22 @@ export default function Admin() {
                     <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tighter">{draft.titleRo}</h2>
                     <p className="text-gray-500 mt-2 text-lg">Editează detaliile și galeria proiectului</p>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3">
                     <button
-                      onClick={handleSaveDraft}
+                      onClick={handleSave}
                       disabled={!isDirty || saving}
                       className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-colors"
                     >
                       {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                       {saving ? 'Se salvează...' : isDirty ? 'Salvează modificările' : 'Salvat'}
+                    </button>
+                    <button
+                      onClick={handleRevert}
+                      disabled={!isDirty || saving}
+                      title="Anulează toate modificările nesalvate"
+                      className="bg-white border border-gray-200 text-gray-600 hover:text-black hover:border-gray-400 disabled:opacity-40 disabled:hover:text-gray-600 disabled:hover:border-gray-200 px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-colors"
+                    >
+                      <RotateCcw size={18} /> Revert
                     </button>
                     <button
                       onClick={handleDeleteProject}
@@ -468,9 +556,9 @@ export default function Admin() {
                   <div className="mb-6">
                     <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Copertă</label>
                     <div className="flex gap-4 items-center">
-                      {selectedProject.coverImage && (
+                      {draft.coverImage && (
                         <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-200">
-                          <img src={selectedProject.coverImage} className="w-full h-full object-cover" />
+                          <img src={draft.coverImage} className="w-full h-full object-cover" />
                         </div>
                       )}
                       <label className="flex-1 bg-gray-50 border border-gray-200 border-dashed rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-center h-16">
@@ -503,75 +591,84 @@ export default function Admin() {
                   </div>
                 </div>
 
-                {/* Add Photo Form */}
-                <div className="mb-10 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
-                  <label className="flex-1 bg-gray-50 border border-gray-200 border-dashed rounded-full px-6 py-4 w-full flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
+                {/* Add Photo Form — acceptă mai multe poze deodată */}
+                <div className="mb-6 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
+                  <label className={`flex-1 bg-gray-50 border border-gray-200 border-dashed rounded-full px-6 py-4 w-full flex items-center justify-center transition-colors ${uploadingGallery ? 'opacity-60 cursor-default' : 'cursor-pointer hover:bg-gray-100'}`}>
                     <span className="text-gray-500 font-medium flex items-center gap-2">
-                      <Plus size={20} /> {uploadingGallery ? 'Se încarcă...' : 'Adaugă poză în galerie'}
+                      {uploadingGallery ? (
+                        <>
+                          <Loader2 size={20} className="animate-spin" />
+                          Se încarcă {uploadProgress.done}/{uploadProgress.total}...
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={20} /> Adaugă poze în galerie
+                        </>
+                      )}
                     </span>
-                    <input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={uploadingGallery} className="hidden" />
+                    <input type="file" accept="image/*" multiple onChange={handlePhotoUpload} disabled={uploadingGallery} className="hidden" />
                   </label>
+                  <p className="text-xs text-gray-400 text-center md:text-right shrink-0">
+                    Poți selecta mai multe odată.<br className="hidden md:block" /> Se comprimă automat înainte de urcare.
+                  </p>
                 </div>
 
-                {/* Bara de confirmare — apare doar când există poze marcate */}
-                {pendingPhotoRemovals.length > 0 && (
-                  <div className="mb-6 bg-red-50 border border-red-200 rounded-[2rem] p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p className="text-red-700 font-medium text-center sm:text-left">
-                      {pendingPhotoRemovals.length === 1
-                        ? 'O poză marcată pentru ștergere.'
-                        : `${pendingPhotoRemovals.length} poze marcate pentru ștergere.`}
+                {/* Bara de selecție — apare doar când sunt poze selectate.
+                    Ștergerea doar le scoate din draft; se aplică la Salvează. */}
+                {selectedPhotos.size > 0 && (
+                  <div className="mb-6 bg-gray-900 text-white rounded-[2rem] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-4 z-40 shadow-xl">
+                    <p className="font-medium text-center sm:text-left">
+                      {selectedPhotos.size} {selectedPhotos.size === 1 ? 'poză selectată' : 'poze selectate'}
                     </p>
                     <div className="flex gap-3 shrink-0">
                       <button
-                        onClick={() => setPendingPhotoRemovals([])}
-                        disabled={savingPhotos}
-                        className="px-5 py-3 rounded-full font-medium text-gray-600 bg-white border border-gray-200 hover:text-black transition-colors disabled:opacity-50"
+                        onClick={clearSelection}
+                        className="px-5 py-3 rounded-full font-medium text-gray-300 bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-2"
                       >
-                        Anulează
+                        <X size={18} /> Deselectează
                       </button>
                       <button
-                        onClick={applyPhotoRemovals}
-                        disabled={savingPhotos}
-                        className="px-5 py-3 rounded-full font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                        onClick={removeSelectedPhotos}
+                        className="px-5 py-3 rounded-full font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors flex items-center gap-2"
                       >
-                        {savingPhotos ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
-                        {savingPhotos ? 'Se șterge...' : 'Șterge definitiv'}
+                        <Trash2 size={18} /> Șterge din galerie
                       </button>
                     </div>
                   </div>
                 )}
 
-                {/* Gallery Grid */}
+                {/* Gallery Grid — click pe poză o selectează (Shift = interval) */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  {selectedProject.gallery.map((img, i) => {
-                    const marked = pendingPhotoRemovals.includes(img);
+                  {draft.gallery.map((img, i) => {
+                    const isSelected = selectedPhotos.has(i);
                     return (
                       <div
-                        key={i}
-                        className={`relative aspect-[4/5] rounded-[1.5rem] overflow-hidden shadow-sm transition-all duration-300 ${
-                          marked ? 'ring-4 ring-red-500 opacity-40' : 'hover:shadow-xl'
+                        key={`${img}-${i}`}
+                        onClick={(e) => togglePhoto(i, e.shiftKey)}
+                        className={`group relative aspect-[4/5] rounded-[1.5rem] overflow-hidden shadow-sm cursor-pointer select-none transition-all duration-200 ${
+                          isSelected ? 'ring-4 ring-black' : 'hover:shadow-xl'
                         }`}
                       >
-                        <img src={img} alt={`Galerie ${i}`} className="w-full h-full object-cover" />
-                        {/* Butonul e mereu vizibil, nu ascuns în spatele unui hover:
-                            pe telefon hover-ul nu există, iar un overlay invizibil dar
-                            clickabil producea ștergeri accidentale. */}
-                        <button
-                          onClick={() => togglePhotoRemoval(img)}
-                          className={`absolute top-3 right-3 p-3 rounded-full shadow-lg transition-colors ${
-                            marked
-                              ? 'bg-white text-gray-700 hover:bg-gray-100'
-                              : 'bg-black/60 text-white hover:bg-red-600'
+                        <img
+                          src={img}
+                          alt={`Galerie ${i}`}
+                          className={`w-full h-full object-cover transition-transform duration-200 ${isSelected ? 'scale-95' : ''}`}
+                        />
+                        {/* Cercul de selecție, stil Apple Photos: gol când nu e
+                            selectat, plin cu bifă când e. Mereu vizibil pe touch. */}
+                        <div
+                          className={`absolute top-3 left-3 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
+                            isSelected
+                              ? 'bg-black border-black text-white'
+                              : 'bg-black/20 border-white/90 text-transparent group-hover:bg-black/40'
                           }`}
-                          title={marked ? 'Păstrează poza' : 'Marchează pentru ștergere'}
-                          aria-label={marked ? 'Păstrează poza' : 'Marchează poza pentru ștergere'}
                         >
-                          {marked ? <Undo2 size={18} /> : <Trash2 size={18} />}
-                        </button>
+                          <Check size={16} strokeWidth={3} />
+                        </div>
                       </div>
                     );
                   })}
-                  {selectedProject.gallery.length === 0 && (
+                  {draft.gallery.length === 0 && (
                     <div className="col-span-full py-16 text-center text-gray-400 bg-white rounded-[2rem] border border-dashed border-gray-300">
                       Nicio poză în galeria acestui proiect. Adaugă una mai sus.
                     </div>
