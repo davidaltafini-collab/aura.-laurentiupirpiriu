@@ -10,25 +10,25 @@ export default function LanguageSwitcher({ className = '' }: { className?: strin
 
   const switchTo = (target: Locale) => {
     if (target === locale) return;
-    navigate(withLocale(location.pathname, target) + location.hash);
+    navigate(withLocale(location.pathname, target) + location.search + location.hash);
   };
 
   return (
-    <div className={`flex items-center gap-1.5 font-medium text-xs md:text-sm tracking-wide uppercase ${className}`}>
-      <button
-        onClick={() => switchTo('ro')}
-        className={locale === 'ro' ? 'opacity-100' : 'opacity-50 hover:opacity-100 transition-opacity'}
-        aria-current={locale === 'ro'}
-      >
-        RO
-      </button>
-      <span className="opacity-30">/</span>
+    <div className={`inline-flex items-center gap-1 rounded-full bg-white/80 p-1 font-medium text-xs md:text-sm tracking-wide uppercase shadow-sm ring-1 ring-black/10 backdrop-blur-md ${className}`}>
       <button
         onClick={() => switchTo('en')}
-        className={locale === 'en' ? 'opacity-100' : 'opacity-50 hover:opacity-100 transition-opacity'}
+        className={`min-h-8 rounded-full px-3 transition-colors ${locale === 'en' ? 'bg-black text-white' : 'text-gray-500 hover:text-black'}`}
         aria-current={locale === 'en'}
       >
         EN
+      </button>
+      <span className="opacity-30">/</span>
+      <button
+        onClick={() => switchTo('ro')}
+        className={`min-h-8 rounded-full px-3 transition-colors ${locale === 'ro' ? 'bg-black text-white' : 'text-gray-500 hover:text-black'}`}
+        aria-current={locale === 'ro'}
+      >
+        RO
       </button>
     </div>
   );

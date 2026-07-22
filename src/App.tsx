@@ -23,13 +23,19 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<LocaleLayout locale="ro" />}>
+          <Route path="/" element={<LocaleLayout locale="en" />}>
             <Route index element={<Home />} />
             <Route path="about" element={<AboutMe />} />
             <Route path="archive" element={<Archive />} />
             <Route path="project/:id" element={<ProjectDetails />} />
           </Route>
           <Route path="/en" element={<LocaleLayout locale="en" />}>
+            <Route index element={<Home />} />
+            <Route path="about" element={<AboutMe />} />
+            <Route path="archive" element={<Archive />} />
+            <Route path="project/:id" element={<ProjectDetails />} />
+          </Route>
+          <Route path="/ro" element={<LocaleLayout locale="ro" />}>
             <Route index element={<Home />} />
             <Route path="about" element={<AboutMe />} />
             <Route path="archive" element={<Archive />} />

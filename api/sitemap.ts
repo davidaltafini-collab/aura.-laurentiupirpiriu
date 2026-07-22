@@ -17,7 +17,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('[api/sitemap] Nu am putut citi proiectele din Supabase:', err);
   }
 
-  const paths = [...STATIC_PATHS, ...projectSlugs.map(slug => `/project/${slug}`)];
+  const englishPaths = [...STATIC_PATHS, ...projectSlugs.map(slug => `/project/${slug}`)];
+  const romanianPaths = englishPaths.map(path => (path === '/' ? '/ro' : `/ro${path}`));
+  const paths = [...englishPaths, ...romanianPaths];
 
   const urls = paths
     .map(path => `  <url><loc>${siteUrl}${path}</loc></url>`)

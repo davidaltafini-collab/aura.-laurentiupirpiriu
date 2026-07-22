@@ -14,6 +14,7 @@ import Seo from '../components/Seo';
 import FaqSection from '../components/FaqSection';
 import AreasServedSection from '../components/AreasServedSection';
 import BrandLockup from '../components/BrandLockup';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import { photographyBusinessJsonLd, faqJsonLd, BUSINESS } from '../lib/seoSchemas';
 import { HOME_FAQ, faqQuestion, faqAnswer } from '../data/faq';
 
@@ -58,10 +59,14 @@ export default function Home() {
         </a>
       </nav>
 
+      <div className="relative z-40 flex justify-center px-4 pt-20 md:pt-28">
+        <LanguageSwitcher className="text-black" />
+      </div>
+
       {/* Hero Section — cardul începe SUB nav, ca CAPTUR. + „Rezervă" să stea
           deasupra lui, nu peste poză. Înălțimea scade exact cât ține header-ul
           fix (mt), ca poza + header să încapă pe un singur ecran. */}
-      <section ref={heroRef} className="h-[calc((var(--vh,1svh)*100)-9rem)] md:h-[calc((var(--vh,1svh)*100)-11rem)] w-[95vw] mx-auto mt-28 md:mt-36 relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
+      <section ref={heroRef} className="h-[calc((var(--vh,1svh)*100)-9rem)] md:h-[calc((var(--vh,1svh)*100)-11rem)] w-[95vw] mx-auto mt-3 md:mt-4 relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">
         <motion.img
           src="/placeholders/wedding-2.jpg"
           alt="Wedding couple"

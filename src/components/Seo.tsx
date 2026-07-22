@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const SITE_NAME = 'CAPTUR. — Wedding & Drone Cinematography';
 
@@ -12,6 +13,9 @@ interface SeoProps {
 }
 
 export default function Seo({ title, description, path, image, type = 'website', jsonLd }: SeoProps) {
+  const { i18n } = useTranslation();
+  const ogLocale = i18n.language === 'ro' ? 'ro_RO' : 'en_US';
+
   useEffect(() => {
     const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
     document.title = fullTitle;
@@ -26,7 +30,7 @@ export default function Seo({ title, description, path, image, type = 'website',
     setMetaByProperty('og:type', type);
     setMetaByProperty('og:url', url);
     setMetaByProperty('og:site_name', SITE_NAME);
-    setMetaByProperty('og:locale', 'ro_RO');
+    setMetaByProperty('og:locale', ogLocale);
     if (image) setMetaByProperty('og:image', image);
 
     setMetaByName('twitter:card', 'summary_large_image');
@@ -36,7 +40,7 @@ export default function Seo({ title, description, path, image, type = 'website',
 
     setCanonical(url);
     setJsonLd(jsonLd);
-  }, [title, description, path, image, type, jsonLd]);
+  }, [title, description, path, image, type, jsonLd, ogLocale]);
 
   return null;
 }

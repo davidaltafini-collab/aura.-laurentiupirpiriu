@@ -39,3 +39,21 @@ body {
   overflow-x: hidden;
   width: 100%;
 }
+
+.form-date-input {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.form-date-input::-webkit-date-and-time-value {
+  min-height: 1.5em;
+  text-align: left;
+}
+
+.form-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  margin-inline-start: auto;
+}

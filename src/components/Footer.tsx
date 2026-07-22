@@ -25,12 +25,11 @@ export default function Footer() {
   const [errorMsg, setErrorMsg] = useState('');
   const [alreadySent, setAlreadySent] = useState(false);
 
-  // Cameră în pagină (getUserMedia). O afișăm NE-oglindită — inclusiv camera
-  // frontală — ca poza trimisă să arate exact ca în realitate (fără efectul de
-  // „mirror" pe care telefonul îl pune de obicei la selfie).
+  // Cameră în pagină (getUserMedia). Pornim pe camera din spate și păstrăm
+  // cadrul ne-oglindit, ca poza trimisă să arate exact ca în realitate.
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState('');
-  const [facing, setFacing] = useState<Facing>('user');
+  const [facing, setFacing] = useState<Facing>('environment');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fallbackInputRef = useRef<HTMLInputElement>(null);
@@ -95,7 +94,7 @@ export default function Footer() {
   const openCamera = () => {
     setCameraError('');
     if (navigator.mediaDevices?.getUserMedia) {
-      setFacing('user');
+      setFacing('environment');
       setCameraOpen(true);
     } else {
       // Browser fără getUserMedia: camera nativă a sistemului.
@@ -113,6 +112,7 @@ export default function Footer() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     // Desenăm cadrul așa cum e — fără scaleX(-1), deci fără oglindire.
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     setImage(canvas.toDataURL('image/jpeg', 0.85));
     stopCamera();
@@ -226,7 +226,7 @@ export default function Footer() {
                         autoPlay
                         muted
                         playsInline
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transform-none"
                       />
                       <button
                         type="button"
