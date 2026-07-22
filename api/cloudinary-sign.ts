@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import type { VercelRequest, VercelResponse } from './_lib/types.js';
 import { getSupabaseAdmin } from './_lib/supabaseAdmin.js';
 
-const UPLOAD_FOLDER = 'aura/projects';
+const UPLOAD_FOLDER = 'captur/projects';
 
 // Generează o semnătură de upload Cloudinary time-limited, doar pentru
 // utilizatori autentificați (verificați prin token-ul Supabase) — cheia

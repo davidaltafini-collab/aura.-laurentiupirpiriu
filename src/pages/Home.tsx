@@ -13,6 +13,7 @@ import ContactForm from '../components/ContactForm';
 import Seo from '../components/Seo';
 import FaqSection from '../components/FaqSection';
 import AreasServedSection from '../components/AreasServedSection';
+import BrandLockup from '../components/BrandLockup';
 import { photographyBusinessJsonLd, faqJsonLd, BUSINESS } from '../lib/seoSchemas';
 import { HOME_FAQ, faqQuestion, faqAnswer } from '../data/faq';
 
@@ -31,7 +32,7 @@ export default function Home() {
   return (
     <div className="min-h-svh font-sans selection:bg-black selection:text-white">
       <Seo
-        title="Aura — Wedding & Drone Cinematography"
+        title="CAPTUR. — Wedding & Drone Cinematography"
         description={locale === 'ro' ? BUSINESS.descriptionRo : BUSINESS.descriptionEn}
         path={location.pathname}
         jsonLd={[
@@ -40,19 +41,24 @@ export default function Home() {
         ]}
       />
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 py-5 md:py-8 px-[2.5vw] flex justify-between items-center mix-blend-difference text-white">
-        <Link to={lp('/')} className="font-display font-bold text-4xl md:text-5xl tracking-tighter">AURA.</Link>
+      <nav className="fixed top-0 left-0 right-0 z-50 py-5 md:py-8 px-[2.5vw] flex justify-between items-center gap-4 mix-blend-difference text-white">
+        <Link to={lp('/')} className="min-w-0 hover:opacity-80 transition-opacity duration-300">
+          <BrandLockup
+            markClassName="text-2xl sm:text-3xl md:text-5xl"
+            signatureClassName="text-sm sm:text-xl md:text-3xl"
+          />
+        </Link>
         <div className="hidden md:flex gap-8 font-medium text-sm tracking-wide uppercase">
           <a href="#about" className="hover:opacity-60 transition-opacity">{t('nav.about')}</a>
           <a href="#work" className="hover:opacity-60 transition-opacity">{t('nav.work')}</a>
           <a href="#contact" className="hover:opacity-60 transition-opacity">{t('nav.contact')}</a>
         </div>
-        <a href="#contact" className="bg-white text-black px-7 py-4 md:px-10 md:py-5 rounded-full font-semibold text-base md:text-lg tracking-wide uppercase hover:scale-105 transition-transform duration-300">
+        <a href="#contact" className="shrink-0 bg-white text-black px-7 py-4 md:px-10 md:py-5 rounded-full font-semibold text-base md:text-lg tracking-wide uppercase hover:scale-105 transition-transform duration-300">
           {t('nav.bookNow')}
         </a>
       </nav>
 
-      {/* Hero Section — cardul începe SUB nav, ca AURA + „Rezervă" să stea
+      {/* Hero Section — cardul începe SUB nav, ca CAPTUR. + „Rezervă" să stea
           deasupra lui, nu peste poză. Înălțimea scade exact cât ține header-ul
           fix (mt), ca poza + header să încapă pe un singur ecran. */}
       <section ref={heroRef} className="h-[calc((var(--vh,1svh)*100)-9rem)] md:h-[calc((var(--vh,1svh)*100)-11rem)] w-[95vw] mx-auto mt-28 md:mt-36 relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-200 shadow-2xl">

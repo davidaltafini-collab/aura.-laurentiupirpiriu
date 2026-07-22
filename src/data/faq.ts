@@ -31,9 +31,9 @@ export const HOME_FAQ: FaqItem[] = [
   },
   {
     questionRo: 'Faceți și filmări cu drona la nunți?',
-    answerRo: 'Da — filmările aeriene cu drona fac parte din pachetele Aura, alături de fotografie și cinematografie de la sol, pentru un rezultat cinematic complet.',
+    answerRo: 'Da — filmările aeriene cu drona fac parte din pachetele CAPTUR., alături de fotografie și cinematografie de la sol, pentru un rezultat cinematic complet.',
     questionEn: 'Do you also offer drone footage at weddings?',
-    answerEn: 'Yes — aerial drone footage is part of every Aura package, alongside ground photography and cinematography, for a complete cinematic result.',
+    answerEn: 'Yes — aerial drone footage is part of every CAPTUR. package, alongside ground photography and cinematography, for a complete cinematic result.',
   },
   {
     questionRo: 'Călătoriți pentru nunți în afara țării (destination wedding)?',
@@ -43,9 +43,9 @@ export const HOME_FAQ: FaqItem[] = [
   },
   {
     questionRo: 'Ce zone din România deserviți?',
-    answerRo: 'Aura este disponibil pentru nunți în toată România — București, Cluj-Napoca, Timișoara, Iași, Brașov și zonele înconjurătoare — precum și pentru evenimente internaționale.',
+    answerRo: 'CAPTUR. este disponibil pentru nunți în toată România — București, Cluj-Napoca, Timișoara, Iași, Brașov și zonele înconjurătoare — precum și pentru evenimente internaționale.',
     questionEn: 'Which areas of Romania do you cover?',
-    answerEn: 'Aura is available for weddings across Romania — Bucharest, Cluj-Napoca, Timișoara, Iași, Brașov and surrounding areas — as well as for international events.',
+    answerEn: 'CAPTUR. is available for weddings across Romania — Bucharest, Cluj-Napoca, Timișoara, Iași, Brașov and surrounding areas — as well as for international events.',
   },
   {
     questionRo: 'Cum aflăm disponibilitatea și detaliile pentru data noastră?',

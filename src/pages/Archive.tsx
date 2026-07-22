@@ -10,6 +10,7 @@ import { useLocalizedPath } from '../hooks/useLocalizedPath';
 import { projectTitle } from '../data';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
+import BrandLockup from '../components/BrandLockup';
 import { breadcrumbJsonLd } from '../lib/seoSchemas';
 
 export default function Archive() {
@@ -38,8 +39,8 @@ export default function Archive() {
       <Seo
         title={locale === 'ro' ? 'Arhivă completă de proiecte' : 'Full project archive'}
         description={locale === 'ro'
-          ? 'Toate proiectele foto și video Aura — nunți documentate cu un stil cinematic, editorial, în România și internațional.'
-          : 'All Aura photo and video projects — weddings documented in a cinematic, editorial style, across Romania and internationally.'}
+          ? 'Toate proiectele foto și video CAPTUR. — nunți documentate cu un stil cinematic, editorial, în România și internațional.'
+          : 'All CAPTUR. photo and video projects — weddings documented in a cinematic, editorial style, across Romania and internationally.'}
         path={location.pathname}
         jsonLd={breadcrumbJsonLd(siteUrl, [
           { name: t('footer.home'), path: lp('/') },
@@ -48,8 +49,12 @@ export default function Archive() {
       />
       {/* Nav */}
       <nav className="p-4 md:p-10 flex justify-between items-center bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
-        <Link to={lp('/')} className="font-display font-bold text-4xl md:text-5xl tracking-tighter hover:opacity-60 transition-opacity">
-          AURA. <span className="text-gray-400 font-light tracking-normal text-lg md:text-xl ml-2">{t('archive.kicker')}</span>
+        <Link to={lp('/')} className="min-w-0 hover:opacity-60 transition-opacity">
+          <BrandLockup
+            markClassName="text-2xl sm:text-3xl md:text-5xl"
+            signatureClassName="text-sm sm:text-xl md:text-3xl"
+            suffix={<span className="hidden sm:inline text-gray-400 font-display font-light tracking-normal text-lg md:text-xl">{t('archive.kicker')}</span>}
+          />
         </Link>
         <Link to={lp('/')} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase text-gray-500 hover:text-black transition-colors">
           <ArrowLeft size={16} /> <span>{t('footer.home')}</span>

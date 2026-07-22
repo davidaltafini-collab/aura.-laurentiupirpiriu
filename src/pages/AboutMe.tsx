@@ -9,6 +9,7 @@ import { useSiteUrl } from '../hooks/useSiteUrl';
 import { useLocale } from '../hooks/useLocale';
 import { useLocalizedPath } from '../hooks/useLocalizedPath';
 import { breadcrumbJsonLd } from '../lib/seoSchemas';
+import BrandLockup from '../components/BrandLockup';
 
 export default function AboutMe() {
   const { t } = useTranslation();
@@ -34,7 +35,12 @@ export default function AboutMe() {
       />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
-        <Link to={lp('/')} className="font-display font-bold text-4xl md:text-5xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
+        <Link to={lp('/')} className="min-w-0 hover:opacity-60 transition-opacity">
+          <BrandLockup
+            markClassName="text-2xl sm:text-3xl md:text-5xl"
+            signatureClassName="text-sm sm:text-xl md:text-3xl"
+          />
+        </Link>
         <Link to={lp('/')} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase hover:opacity-60 transition-opacity">
           <ArrowLeft size={16} /> {t('projectDetails.backToWork')}
         </Link>
@@ -62,7 +68,7 @@ export default function AboutMe() {
             </p>
 
             {/* TODO: înlocuiește cu adresa reală de email a lui Laurentiu */}
-            <a href="mailto:contact@aura.ro" className="inline-flex items-center gap-2 bg-black text-white px-6 py-4 md:px-8 md:py-4 rounded-full font-medium uppercase tracking-widest text-xs md:text-sm hover:bg-gray-800 transition-colors">
+            <a href="mailto:contact@captur.ro" className="inline-flex items-center gap-2 bg-black text-white px-6 py-4 md:px-8 md:py-4 rounded-full font-medium uppercase tracking-widest text-xs md:text-sm hover:bg-gray-800 transition-colors">
               {t('about.cta')} <Mail size={16} />
             </a>
           </motion.div>

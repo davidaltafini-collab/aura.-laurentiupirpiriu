@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import BrandLockup from '../components/BrandLockup';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -42,13 +43,13 @@ export default function Login() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           src="/placeholders/wedding-1.jpg"
-          alt="Aura"
+          alt="CAPTUR."
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute top-10 left-10 z-10">
-          <Link to="/" className="font-display font-bold text-2xl tracking-tighter text-white hover:opacity-80 transition-opacity duration-300">
-            AURA.
+          <Link to="/" className="text-white hover:opacity-80 transition-opacity duration-300">
+            <BrandLockup markClassName="text-2xl" signatureClassName="text-lg" />
           </Link>
         </div>
         <div className="absolute bottom-12 left-12 z-10 text-white max-w-lg">
@@ -71,8 +72,8 @@ export default function Login() {
       <div className="flex-1 flex flex-col min-h-svh relative">
         {/* Nav mobil */}
         <nav className="p-6 flex md:hidden justify-between items-center bg-white z-50">
-          <Link to="/" className="font-display font-bold text-xl tracking-tighter hover:opacity-60 transition-opacity">
-            AURA.
+          <Link to="/" className="hover:opacity-60 transition-opacity">
+            <BrandLockup markClassName="text-xl" signatureClassName="text-sm" />
           </Link>
           <Link to="/" className="flex items-center gap-2 font-medium text-xs tracking-wide uppercase text-gray-500 hover:text-black transition-colors">
             <ArrowLeft size={16} /> Înapoi

@@ -33,6 +33,7 @@ import {
 } from '../lib/projects';
 import { compressImage } from '../lib/imageCompress';
 import { fetchLeads, updateLeadStatus, Lead } from '../lib/leads';
+import BrandLockup from '../components/BrandLockup';
 
 // ─── Selector de dată: lună (RO) + an ────────────────────────────────────────
 // Câmpul `date` e un text afișat direct pe site (ex. „Septembrie 2026"), nu o
@@ -520,8 +521,12 @@ export default function Admin() {
 
       {/* Nav */}
       <nav className="p-4 md:p-10 flex justify-between items-center bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
-        <Link to="/" className="font-display font-bold text-xl md:text-2xl tracking-tighter">
-          AURA. <span className="text-gray-400 font-light tracking-normal text-lg md:text-xl ml-2">Workspace</span>
+        <Link to="/" className="min-w-0 hover:opacity-70 transition-opacity">
+          <BrandLockup
+            markClassName="text-xl md:text-2xl"
+            signatureClassName="text-sm md:text-xl"
+            suffix={<span className="text-gray-400 font-display font-light tracking-normal text-lg md:text-xl">Workspace</span>}
+          />
         </Link>
         <button
           onClick={() => signOut()}

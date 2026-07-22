@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 
 // Același folder și aceeași logică de semnare ca api/cloudinary-sign.ts, ca
 // testul să reproducă exact ce face funcția reală de upload.
-const CLOUDINARY_FOLDER = 'aura/projects';
+const CLOUDINARY_FOLDER = 'captur/projects';
 
 // PNG transparent 1x1, ca payload de test pentru upload-ul Cloudinary.
 const TEST_PNG_BASE64 =
@@ -20,9 +20,9 @@ const TEST_PNG_BASE64 =
  * există și câte caractere are. Accesul e limitat de token-ul de mai jos.
  * ȘTERGE acest fișier după ce terminăm depanarea.
  *
- * Utilizare:  /api/debug?key=aura-diag-7f3k9x2m
+ * Utilizare:  /api/debug?key=captur-diag-7f3k9x2m
  */
-const DIAG_TOKEN = 'aura-diag-7f3k9x2m';
+const DIAG_TOKEN = 'captur-diag-7f3k9x2m';
 
 // Variabilele publice (ajung oricum în bundle-ul de browser) le putem arăta
 // întregi; restul, doar ca prezență + lungime.

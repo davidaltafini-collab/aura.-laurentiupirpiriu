@@ -1,4 +1,4 @@
-# Progress — Aura (Laurentiu Pirpiriu Photography)
+# Progress — CAPTUR. (Laurentiu Pirpiriu Photography)
 
 Document viu de tracking pentru implementarea backend-ului, SEO și GEO. Actualizat pe măsură ce se lucrează. Planul complet original: vezi discuția din sesiunea de plan (rezumat mai jos, la fiecare fază).
 
@@ -71,7 +71,7 @@ să fie reutilizată pentru asta.
 
 ## Faza 5 — Performanță & polish
 - [x] Lazy loading imagini (except hero) — `loading="lazy"` pe imaginile din grile/galerii
-- [x] Consistență branding: „Aura" (comercial) + Laurentiu Pirpiriu (fotograful) — aplicat în schema.org, meta tags, copy About
+- [x] Consistență branding: „CAPTUR." (comercial) + Laurentiu Pirpiriu (fotograful) — aplicat în schema.org, meta tags, copy About
 - [x] Code-splitting: `Admin`/`Login` încărcate lazy (`React.lazy` + `Suspense` în `App.tsx`) — nu mai umflă bundle-ul public cu cod folosit doar de Laurentiu
 - [ ] Verificare Core Web Vitals / Lighthouse — recomand rulare după ce sunt poze reale (Unsplash-urile placeholder nu sunt reprezentative pentru performanța finală)
 
@@ -89,10 +89,10 @@ să fie reutilizată pentru asta.
 - [ ] Cont Vercel (gratuit) — cu emailul tău de domeniu propriu, NU contul personal (vezi decizia de mai jos)
 - [ ] Cont Supabase (gratuit) — la fel, cu emailul tău de domeniu propriu
 - [ ] Cont Cloudinary (gratuit) — pentru poze; nu are transfer nativ de ownership, vezi nota din `MIGRATION.md`
-- [ ] Cont Gmail dedicat (ex. `contact.aura.photography@gmail.com`) + „App Password" generat pentru trimitere automată de email-uri — sau, dacă preferi, adresa de pe domeniul tău dacă are deja SMTP activ
+- [ ] Cont Gmail dedicat (ex. `contact.captur.photography@gmail.com`) + „App Password" generat pentru trimitere automată de email-uri — sau, dacă preferi, adresa de pe domeniul tău dacă are deja SMTP activ
 - [ ] Adresa de email a lui Laurentiu unde ajung notificările de cereri noi
 - [ ] Conținut real: poze, bio, texte, adresă/telefon business (pentru Google Business Profile și pentru schema.org)
-- [ ] Mai târziu: cumpărare domeniu final (`aura.ro` sau altul) + migrare completă către client — vezi **[`MIGRATION.md`](MIGRATION.md)**
+- [ ] Mai târziu: cumpărare domeniu final (`captur.ro` sau altul) + migrare completă către client — vezi **[`MIGRATION.md`](MIGRATION.md)**
 
 ### Decizie: infrastructură temporară pe domeniul tău, migrare la final
 Ca să nu-ți încarci contul personal cu proiecte de clienți (și să nu dai peste
@@ -109,4 +109,4 @@ nu e posibil din vreun motiv.
 - Email: Gmail SMTP acum → Zoho Mail mai târziu (doar schimbare de config, nu de cod)
 - GEO: SEO local + optimizare pentru motoare AI, ambele
 - Limbă: Română principal, Engleză secundar
-- Brand: „Aura" (comercial) + Laurentiu Pirpiriu (fotograful din spate)
+- Brand: „CAPTUR." (comercial) + Laurentiu Pirpiriu (fotograful din spate)

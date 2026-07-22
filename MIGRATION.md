@@ -3,7 +3,7 @@
 Context: acum site-ul rulează pe conturi Supabase/Vercel/Cloudinary create cu
 emailul tău (domeniul tău propriu), ca să poți construi și testa fără să aștepți
 după client. Când tu și Laurentiu cădeți de acord pe domeniul final (ex.
-`aura.ro`) și pe cine deține infrastructura, urmează pașii de mai jos.
+`captur.ro`) și pe cine deține infrastructura, urmează pașii de mai jos.
 
 **Recomandare**: folosește **transfer de proprietate** (Supabase + Vercel permit
 asta nativ), NU recreare de la zero — păstrezi toate datele (proiecte, cereri
@@ -50,12 +50,12 @@ către alt owner. Două opțiuni:
 - **Dacă clientul insistă pe independență completă**: creează un cont Cloudinary
   nou pe numele lui, ia noile `CLOUDINARY_CLOUD_NAME`/`API_KEY`/`API_SECRET`,
   actualizează-le în Vercel — dar pozele deja urcate NU se mută automat. Trebuie
-  să descarci fiecare poză din Cloudinary Media Library (folderul `aura/projects`)
+  să descarci fiecare poză din Cloudinary Media Library (folderul `captur/projects`)
   și să o reîncarci din `/admin` (cel mai simplu: șterge și reîncarcă din nou,
   proiect cu proiect, odată ce portofoliul final e stabil).
 
 ### 4. Domeniul propriu
-1. Cumpărați `aura.ro` (sau domeniul ales).
+1. Cumpărați `captur.ro` (sau domeniul ales).
 2. În contul Vercel final: **Project Settings → Domains** → adaugă domeniul,
    configurează DNS-ul conform instrucțiunilor afișate (de obicei un record `A`
    sau `CNAME` la registrar).
@@ -64,13 +64,13 @@ către alt owner. Două opțiuni:
    și se adaptează automat la orice domeniu).
 
 ### 5. Email — trecerea la Zoho Mail
-1. Configurați Zoho Mail pe domeniul nou (`admin@aura.ro`) — vezi pasul 3 din
+1. Configurați Zoho Mail pe domeniul nou (`admin@captur.ro`) — vezi pasul 3 din
    `DEPLOY.md` pentru ideea generală, doar că acum cu domeniu propriu în loc de
    Gmail.
 2. În Vercel, schimbă doar variabilele de mediu:
    - `EMAIL_HOST` → `smtp.zoho.com`
    - `EMAIL_PORT` → `465`
-   - `EMAIL_USER` → `admin@aura.ro`
+   - `EMAIL_USER` → `admin@captur.ro`
    - `EMAIL_PASS` → parola/App Password de Zoho
 3. Redeploy (**Deployments → ⋯ → Redeploy**) ca funcțiile serverless să vadă
    noile variabile. Codul nu se schimbă deloc — vezi `api/_lib/mailer.ts`.

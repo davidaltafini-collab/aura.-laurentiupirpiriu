@@ -1,4 +1,4 @@
-# Aura — Wedding & Drone Cinematography
+# CAPTUR. — Wedding & Drone Cinematography
 
 Site-ul lui Laurentiu Pirpiriu: portofoliu foto/video, formular de contact real,
 panou de administrare, SEO + GEO. React 19 + TypeScript + Vite + Tailwind v4 +

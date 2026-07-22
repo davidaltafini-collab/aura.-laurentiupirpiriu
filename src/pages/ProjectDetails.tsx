@@ -11,6 +11,7 @@ import { projectTitle, projectDescription } from '../data';
 import { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
+import BrandLockup from '../components/BrandLockup';
 import { breadcrumbJsonLd, projectJsonLd } from '../lib/seoSchemas';
 
 export default function ProjectDetails() {
@@ -79,7 +80,12 @@ export default function ProjectDetails() {
       />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
-        <Link to={lp('/')} className="font-display font-bold text-4xl md:text-5xl tracking-tighter hover:opacity-60 transition-opacity">AURA.</Link>
+        <Link to={lp('/')} className="min-w-0 hover:opacity-60 transition-opacity">
+          <BrandLockup
+            markClassName="text-2xl sm:text-3xl md:text-5xl"
+            signatureClassName="text-sm sm:text-xl md:text-3xl"
+          />
+        </Link>
         <Link to={backLink} className="flex items-center gap-2 font-medium text-xs md:text-sm tracking-wide uppercase hover:opacity-60 transition-opacity">
           <ArrowLeft size={16} /> <span>{backText}</span>
         </Link>

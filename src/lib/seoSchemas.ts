@@ -7,8 +7,8 @@ import { Project, projectTitle, projectDescription, Locale } from '../data';
  * Profile și schema.org vor fi inconsistente (rău pentru SEO local).
  */
 export const BUSINESS = {
-  name: 'Aura',
-  legalName: 'Aura — Wedding & Drone Cinematography by Laurentiu Pirpiriu',
+  name: 'CAPTUR.',
+  legalName: 'CAPTUR. — Wedding & Drone Cinematography by Laurentiu Pirpiriu',
   founder: 'Laurentiu Pirpiriu',
   descriptionRo: 'Fotografie și cinematografie artistică de nuntă, inclusiv filmări cu drona — Laurentiu Pirpiriu documentează povești de dragoste în România și internațional.',
   descriptionEn: 'Artistic wedding photography and cinematography, including drone footage — Laurentiu Pirpiriu documents love stories across Romania and worldwide.',

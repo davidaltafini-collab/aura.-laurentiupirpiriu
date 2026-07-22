@@ -1,4 +1,4 @@
-# Ghid de lansare — Aura (Laurentiu Pirpiriu Photography)
+# Ghid de lansare — CAPTUR. (Laurentiu Pirpiriu Photography)
 
 Acest ghid te duce de la codul din acest repo până la site live, gratuit, pe un
 subdomeniu Vercel. Toți pașii de mai jos se fac o singură dată.
@@ -14,7 +14,7 @@ subdomeniu Vercel. Toți pașii de mai jos se fac o singură dată.
 ## 1. Creează proiectul Supabase (bază de date + autentificare)
 
 1. Mergi pe [supabase.com](https://supabase.com) → creează cont gratuit → **New Project**.
-2. Alege un nume (ex. `aura-photography`) și o parolă pentru baza de date (salveaz-o undeva sigur).
+2. Alege un nume (ex. `captur-photography`) și o parolă pentru baza de date (salveaz-o undeva sigur).
 3. După ce proiectul e gata: **SQL Editor** → **New query** → copiază tot conținutul din
    [`supabase/schema.sql`](supabase/schema.sql) → **Run**.
 4. Opțional, dacă vrei site-ul populat din start cu proiectele placeholder (ca să arate
@@ -47,7 +47,7 @@ optimizare automată de imagine (resize, WebP, CDN), tier gratuit generos.
 Formularul de contact trimite două emailuri automat: unul de confirmare către persoana
 care completează formularul, unul de notificare către Laurentiu.
 
-1. Creează un cont Gmail nou (ex. `contact.aura.photography@gmail.com`) — sau, dacă
+1. Creează un cont Gmail nou (ex. `contact.captur.photography@gmail.com`) — sau, dacă
    domeniul tău are deja SMTP activ, poți folosi o adresă de acolo în loc de Gmail
    (schimbă doar `EMAIL_HOST`/`EMAIL_PORT` corespunzător providerului tău).
 2. Activează verificarea în 2 pași: **Google Account → Security → 2-Step Verification**.
@@ -57,7 +57,7 @@ care completează formularul, unul de notificare către Laurentiu.
 4. Notează adresa de email a lui Laurentiu (cea reală, unde vrea să primească
    notificările de cereri noi) — asta va fi `ADMIN_NOTIFICATION_EMAIL`.
 
-> **Mai târziu**, când domeniul final (`aura.ro`) e gata și configurați Zoho Mail:
+> **Mai târziu**, când domeniul final (`captur.ro`) e gata și configurați Zoho Mail:
 > schimbați doar `EMAIL_HOST`/`EMAIL_PORT`/`EMAIL_USER`/`EMAIL_PASS` în Vercel cu
 > datele Zoho (`smtp.zoho.com`, port 465) — codul nu se schimbă deloc.
 
@@ -103,7 +103,7 @@ serverless să vadă noile variabile.
   - că cererea apare în tab-ul „Cereri" din `/admin`
 - Loghează-te în `/login` cu contul de admin creat la pasul 1.5, adaugă un proiect
   de test, încarcă o poză (verifică că apare și în Cloudinary Media Library, în folderul
-  `aura/projects`), verifică că apare pe site.
+  `captur/projects`), verifică că apare pe site.
 - Verifică `/sitemap.xml` și `/robots.txt` — trebuie să răspundă cu domeniul corect.
 
 ## 7. Predare către client (Laurentiu)
@@ -120,11 +120,11 @@ serverless să vadă noile variabile.
 Vezi [`MIGRATION.md`](MIGRATION.md) pentru pașii compleți de migrare (transfer de
 ownership Supabase + Vercel, fără pierdere de date). Pe scurt:
 
-1. Cumpărați domeniul (ex. `aura.ro`).
+1. Cumpărați domeniul (ex. `captur.ro`).
 2. Vercel → **Project Settings → Domains** → adaugă domeniul, urmează instrucțiunile DNS.
-3. Configurați Zoho Mail pe domeniu (`admin@aura.ro`) — vezi nota din pasul 3.
+3. Configurați Zoho Mail pe domeniu (`admin@captur.ro`) — vezi nota din pasul 3.
 4. Actualizați `BUSINESS.telephone` și `BUSINESS.sameAs` din
    [`src/lib/seoSchemas.ts`](src/lib/seoSchemas.ts) cu datele reale.
-5. Recomandat: creați și verificați un Google Business Profile pentru „Aura" — cel mai
+5. Recomandat: creați și verificați un Google Business Profile pentru „CAPTUR." — cel mai
    puternic semnal pentru SEO local, dar necesită verificare externă (poștă/telefon),
    nu se poate face din cod.

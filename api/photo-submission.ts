@@ -56,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(429).json({ error: 'Ai trimis deja o poză recent. Mai încearcă peste puțin timp.' });
     }
 
-    const imageUrl = await uploadDataUriToCloudinary(image, 'aura/submissions');
+    const imageUrl = await uploadDataUriToCloudinary(image, 'captur/submissions');
 
     const cleanMessage = typeof message === 'string' ? message.trim().slice(0, 2000) : '';
     const { error: dbError } = await supabase.from('leads').insert({

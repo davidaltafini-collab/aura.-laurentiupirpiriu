@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const SITE_NAME = 'Aura — Wedding & Drone Cinematography';
+const SITE_NAME = 'CAPTUR. — Wedding & Drone Cinematography';
 
 interface SeoProps {
   title: string;

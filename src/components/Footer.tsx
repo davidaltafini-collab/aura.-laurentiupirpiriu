@@ -6,8 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { useLocalizedPath } from '../hooks/useLocalizedPath';
 import { compressToDataUrl } from '../lib/imageCompress';
 import LanguageSwitcher from './LanguageSwitcher';
+import BrandLockup from './BrandLockup';
 
-const SESSION_KEY = 'aura_photo_sent';
+const SESSION_KEY = 'captur_photo_sent';
 
 type SendStatus = 'idle' | 'sending' | 'sent' | 'error';
 type Facing = 'user' | 'environment';
@@ -155,7 +156,9 @@ export default function Footer() {
     <>
       <footer className="py-12 px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-gray-200 mt-auto bg-[#f8f8f7]">
         <div className="flex flex-col md:flex-row items-center gap-6">
-          <Link to={lp('/')} className="font-display font-bold text-2xl tracking-tighter">AURA.</Link>
+          <Link to={lp('/')} className="hover:opacity-70 transition-opacity">
+            <BrandLockup markClassName="text-2xl" signatureClassName="text-lg" />
+          </Link>
 
           <div className="flex flex-wrap justify-center gap-4 md:gap-6 font-medium text-xs md:text-sm tracking-wide uppercase text-gray-500">
             <Link to={lp('/')} className="hover:text-black transition-colors">{t('footer.home')}</Link>

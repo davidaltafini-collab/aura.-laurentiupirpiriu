@@ -43,7 +43,7 @@ export async function sendLeadEmails(lead: LeadInput) {
   await Promise.all([
     // Notificare către Laurentiu
     transporter.sendMail({
-      from: `"Aura — Site" <${fromAddress}>`,
+      from: `"CAPTUR. — Site" <${fromAddress}>`,
       to: adminEmail,
       replyTo: lead.email,
       subject: `Cerere nouă de pe site — ${lead.name}`,
@@ -57,14 +57,14 @@ export async function sendLeadEmails(lead: LeadInput) {
     }),
     // Confirmare către persoana care a completat formularul
     transporter.sendMail({
-      from: `"Aura Photography" <${fromAddress}>`,
+      from: `"CAPTUR. Photography" <${fromAddress}>`,
       to: lead.email,
-      subject: 'Am primit cererea ta — Aura Photography',
+      subject: 'Am primit cererea ta — CAPTUR. Photography',
       html: `
         <div style="font-family:sans-serif;max-width:480px;">
           <h2 style="margin-bottom:16px;">Mulțumim, ${escapeHtml(lead.name)}!</h2>
           <p>Am primit cererea ta și Laurentiu îți va răspunde în cel mai scurt timp, direct pe acest email.</p>
-          <p style="color:#666;margin-top:24px;">— Echipa Aura</p>
+          <p style="color:#666;margin-top:24px;">— Echipa CAPTUR.</p>
         </div>
       `,
     }),
@@ -81,7 +81,7 @@ export async function sendPhotoSubmissionEmail(input: { email: string; message: 
   }
 
   await transporter.sendMail({
-    from: `"Aura — Site" <${fromAddress}>`,
+    from: `"CAPTUR. — Site" <${fromAddress}>`,
     to: adminEmail,
     replyTo: input.email,
     subject: 'Poză nouă trimisă de un vizitator',
