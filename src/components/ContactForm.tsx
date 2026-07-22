@@ -20,6 +20,13 @@ export default function ContactForm() {
   const [form, setForm] = useState<FormState>(initialState);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const formattedEventDate = form.eventDate
+    ? new Intl.DateTimeFormat(locale === 'ro' ? 'ro-RO' : 'en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).format(new Date(`${form.eventDate}T00:00:00`))
+    : '';
   const update = (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
   };
@@ -117,15 +124,7 @@ export default function ContactForm() {
           onChange={update('phone')}
           className="w-full min-w-0 bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg"
         />
-        <div className="relative w-full min-w-0">
-          {!form.eventDate && (
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 left-6 right-12 z-10 flex items-center text-base text-gray-400 md:left-8 md:text-lg"
-            >
-              {t('contactForm.eventDateSelectPlaceholder')}
-            </span>
-          )}
+        <div className="relative w-full min-w-0 overflow-hidden rounded-full">
           <input
             type="date"
             aria-label={t('contactForm.eventDateSelectPlaceholder')}
@@ -141,8 +140,13 @@ export default function ContactForm() {
               }
             }}
             onChange={update('eventDate')}
-            className={`form-date-input w-full min-w-0 bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg [color-scheme:dark] ${form.eventDate ? 'text-white' : 'text-transparent'}`}
+            className="form-date-input peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
           />
+          <div className="pointer-events-none flex min-h-[54px] w-full min-w-0 items-center truncate rounded-full border border-white/20 bg-white/10 px-6 py-3.5 text-base text-white transition-colors peer-focus:border-white md:min-h-[60px] md:px-8 md:py-4 md:text-lg">
+            <span className={`block min-w-0 truncate ${form.eventDate ? 'text-white' : 'text-gray-400'}`}>
+              {formattedEventDate || t('contactForm.eventDateSelectPlaceholder')}
+            </span>
+          </div>
         </div>
       </div>
       <textarea

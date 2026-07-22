@@ -105,14 +105,20 @@ export default function Footer() {
   const capturePhoto = () => {
     const video = videoRef.current;
     if (!video || !video.videoWidth) return;
+    const shouldFlipSelfie = facing === 'user';
     const scale = Math.min(1, 1600 / Math.max(video.videoWidth, video.videoHeight));
     const canvas = document.createElement('canvas');
     canvas.width = Math.round(video.videoWidth * scale);
     canvas.height = Math.round(video.videoHeight * scale);
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    // Desenăm cadrul așa cum e — fără scaleX(-1), deci fără oglindire.
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // Unele browsere mobile expun camera frontală ca selfie mirror.
+    // Aplicăm aceeași corecție în canvas ca preview-ul să rămână fidel capturii.
+    if (shouldFlipSelfie) {
+      ctx.setTransform(-1, 0, 0, 1, canvas.width, 0);
+    } else {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     setImage(canvas.toDataURL('image/jpeg', 0.85));
     stopCamera();
@@ -220,13 +226,12 @@ export default function Footer() {
                 {cameraOpen ? (
                   <div className="w-full flex flex-col gap-5">
                     <div className="w-full aspect-[3/4] max-h-[50vh] relative rounded-2xl overflow-hidden bg-black">
-                      {/* Fără scaleX(-1): previzualizarea NU e oglindită. */}
                       <video
                         ref={videoRef}
                         autoPlay
                         muted
                         playsInline
-                        className="w-full h-full object-cover transform-none"
+                        className={`h-full w-full object-cover ${facing === 'user' ? '-scale-x-100' : 'transform-none'}`}
                       />
                       <button
                         type="button"

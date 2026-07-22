@@ -8,6 +8,7 @@ export default function FloatingAboutButton() {
   const location = useLocation();
   const lp = useLocalizedPath();
   const [bottomOffset, setBottomOffset] = useState(0);
+  const ringText = 'ABOUT ME \u2022 LAURENTIU PIRPILIU \u2022 ABOUT ME \u2022 LAURENTIU PIRPILIU \u2022';
 
   // Ancoră fixă, NEtransformată. Poziția ei nu se schimbă niciodată, deci e o
   // referință de măsurare stabilă. Translate-ul se aplică pe div-ul dinăuntru.
@@ -69,14 +70,14 @@ export default function FloatingAboutButton() {
   return (
     <div
       ref={anchorRef}
-      className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50 pointer-events-none"
+      className="fixed bottom-3 right-3 md:bottom-10 md:right-10 z-50 pointer-events-none"
     >
       {/* Fără transition: offset-ul se recalculează la fiecare frame de scroll,
           deci butonul urmărește footer-ul 1:1, ca un element lipit. O tranziție
           CSS ar rămâne mereu în urma țintei și ar da senzația de „săltăreț". */}
       <div style={{ transform: `translateY(-${bottomOffset}px)`, willChange: 'transform' }}>
         <Link to={lp('/about')} className="block group pointer-events-auto">
-          <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-300 shadow-2xl">
+          <div className="relative h-24 w-24 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-300 shadow-2xl md:h-36 md:w-36">
             <div className="absolute inset-0 rounded-full bg-black"></div>
             {/* Rotating Text */}
             <motion.div
@@ -85,17 +86,17 @@ export default function FloatingAboutButton() {
               className="absolute inset-0 w-full h-full"
             >
               <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-                <path id="aboutButtonCirclePath" d="M 50, 50 m -42, 0 a 42,42 0 1,1 84,0 a 42,42 0 1,1 -84,0" fill="none" />
-                <text fill="white" fontSize="7.1" fontWeight="bold" letterSpacing="0" textLength="253" lengthAdjust="spacing" className="font-sans uppercase">
-                  <textPath href="#aboutButtonCirclePath" startOffset="50%" textAnchor="middle">
-                    ABOUT ME • LAURENTIU PIRPILIU •
+                <path id="aboutButtonCirclePath" d="M 50, 50 m 0, -43 a 43,43 0 1,1 0,86 a 43,43 0 1,1 0,-86" fill="none" />
+                <text fill="white" fontSize="7.4" fontWeight="900" letterSpacing="0" textLength="270" lengthAdjust="spacing" className="font-sans uppercase">
+                  <textPath href="#aboutButtonCirclePath" startOffset="0">
+                    {ringText}
                   </textPath>
                 </text>
               </svg>
             </motion.div>
 
             {/* Center Avatar */}
-            <div className="absolute left-1/2 top-1/2 z-10 h-[64%] w-[64%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f4f4f5] overflow-hidden pointer-events-none">
+            <div className="absolute left-1/2 top-1/2 z-10 h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f4f4f5] overflow-hidden pointer-events-none">
                <img
                   src="/laurentiu.png"
                   alt="Laurentiu"
