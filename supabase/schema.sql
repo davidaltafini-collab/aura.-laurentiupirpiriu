@@ -102,6 +102,12 @@ create policy "Authenticated users can update leads"
   using (true)
   with check (true);
 
+drop policy if exists "Authenticated users can delete leads" on leads;
+create policy "Authenticated users can delete leads"
+  on leads for delete
+  to authenticated
+  using (true);
+
 -- Notă: pozele proiectelor NU se mai stochează în Supabase Storage — se
 -- încarcă direct în Cloudinary (vezi api/cloudinary-sign.ts și
 -- src/lib/cloudinary.ts). Doar URL-ul rezultat (cover_image_url,

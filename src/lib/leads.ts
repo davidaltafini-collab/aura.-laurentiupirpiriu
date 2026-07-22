@@ -61,3 +61,21 @@ export async function updateLeadStatus(id: string, status: string): Promise<void
   const { error } = await supabase.from('leads').update({ status }).eq('id', id);
   if (error) throw error;
 }
+
+export async function deleteLead(id: string): Promise<void> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error('Sesiunea admin a expirat. Autentifica-te din nou.');
+
+  const response = await fetch(`/api/delete-lead?id=${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || 'Nu am putut sterge cererea.');
+  }
+}

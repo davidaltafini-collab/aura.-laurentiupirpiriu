@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence, type PanInfo } from 'motion/react';
 import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2, CheckCircle2, Circle, Undo } from 'lucide-react';
 import {
   DndContext,
@@ -32,7 +32,7 @@ import {
   uploadProjectImage,
 } from '../lib/projects';
 import { compressImage } from '../lib/imageCompress';
-import { fetchLeads, updateLeadStatus, Lead } from '../lib/leads';
+import { deleteLead, fetchLeads, updateLeadStatus, Lead } from '../lib/leads';
 import BrandLockup from '../components/BrandLockup';
 import { scrollToPageTop } from '../lib/scroll';
 
@@ -165,6 +165,8 @@ function SortableGalleryItem({
   );
 }
 
+const SWIPE_DELETE_WIDTH = 112;
+
 const emptyDraft = {
   titleRo: '',
   titleEn: '',
@@ -214,6 +216,8 @@ export default function Admin() {
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
+  const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
+  const [openLeadId, setOpenLeadId] = useState<string | null>(null);
 
   // Mouse: drag imediat după 5px. Touch: delay 200ms (swipe = scroll, apăsare
   // lungă = drag), deci nu blocăm scroll-ul galeriei pe telefon.
@@ -485,6 +489,37 @@ export default function Admin() {
     }
   };
 
+  const handleDeleteLead = async (lead: Lead) => {
+    if (deletingLeadId) return;
+    if (!confirm(`Stergi cererea de la ${lead.name}?`)) return;
+
+    setDeletingLeadId(lead.id);
+    try {
+      await deleteLead(lead.id);
+      setLeads(prev => prev.filter(item => item.id !== lead.id));
+      setOpenLeadId(current => (current === lead.id ? null : current));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Nu am putut sterge cererea.';
+      alert(message);
+      console.error('[admin] stergere cerere:', err);
+    } finally {
+      setDeletingLeadId(current => (current === lead.id ? null : current));
+    }
+  };
+
+  const handleLeadDragEnd = (lead: Lead, info: PanInfo) => {
+    const shouldOpen = info.offset.x < -48 || info.velocity.x < -500;
+    setOpenLeadId(shouldOpen ? lead.id : null);
+  };
+
+  const closeOpenLeadIfNeeded = (event: React.MouseEvent<HTMLDivElement>, lead: Lead) => {
+    if (openLeadId !== lead.id) return;
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-lead-action]')) return;
+    event.preventDefault();
+    setOpenLeadId(null);
+  };
+
   const draftDate = parseProjectDate(draft.date);
   const setDatePart = (part: 'month' | 'year', value: string) => {
     const next = { ...draftDate, [part]: value };
@@ -568,8 +603,41 @@ export default function Admin() {
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {leads.map(lead => (
-                <div key={lead.id} className="bg-white p-6 rounded-[1.5rem] shadow-sm border border-gray-100">
+              <AnimatePresence initial={false}>
+                {leads.map(lead => (
+                  <motion.div
+                    key={lead.id}
+                    layout
+                    initial={false}
+                    exit={{ opacity: 0, x: -32, scale: 0.98 }}
+                    transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative overflow-hidden rounded-[1.5rem]"
+                  >
+                  <div aria-hidden={openLeadId !== lead.id} className="absolute inset-y-0 right-0 flex w-28 rounded-[1.5rem] bg-red-500 text-white">
+                    <button
+                      type="button"
+                      tabIndex={openLeadId === lead.id ? 0 : -1}
+                      aria-label={`Sterge cererea de la ${lead.name}`}
+                      onClick={() => handleDeleteLead(lead)}
+                      disabled={deletingLeadId === lead.id}
+                      className="flex h-full min-h-36 w-full flex-col items-center justify-center gap-2 rounded-[1.5rem] text-xs font-bold uppercase tracking-widest transition-colors hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-700 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-70"
+                    >
+                      {deletingLeadId === lead.id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                      {deletingLeadId === lead.id ? 'Se sterge' : 'Sterge'}
+                    </button>
+                  </div>
+                  <motion.div
+                    drag="x"
+                    dragDirectionLock
+                    dragConstraints={{ left: -SWIPE_DELETE_WIDTH, right: 0 }}
+                    dragElastic={0.03}
+                    dragMomentum={false}
+                    onDragEnd={(_event, info) => handleLeadDragEnd(lead, info)}
+                    animate={{ x: openLeadId === lead.id ? -SWIPE_DELETE_WIDTH : 0 }}
+                    transition={{ type: 'spring', stiffness: 520, damping: 42 }}
+                    onClickCapture={(event) => closeOpenLeadIfNeeded(event, lead)}
+                    className="relative cursor-grab touch-pan-y select-none rounded-[1.5rem] border border-gray-100 bg-white p-6 shadow-sm active:cursor-grabbing"
+                  >
                   <div className="flex flex-col md:flex-row justify-between gap-4">
                     <div className="flex gap-4">
                       {lead.imageUrl && (
@@ -597,16 +665,30 @@ export default function Admin() {
                     <div className="flex md:flex-col gap-2 shrink-0">
                       {lead.status !== 'contacted' && (
                         <button
+                          type="button"
+                          data-lead-action="true"
                           onClick={() => handleMarkLead(lead, 'contacted')}
                           className="text-xs uppercase tracking-wide bg-gray-100 hover:bg-black hover:text-white px-4 py-2 rounded-full font-medium transition-colors"
                         >
                           Marchează contactat
                         </button>
                       )}
+                      <button
+                        type="button"
+                        data-lead-action="true"
+                        onClick={() => handleDeleteLead(lead)}
+                        disabled={deletingLeadId === lead.id}
+                        className="flex items-center justify-center gap-1.5 rounded-full bg-red-50 px-4 py-2 text-xs font-medium uppercase tracking-wide text-red-600 transition-colors hover:bg-red-500 hover:text-white disabled:cursor-wait disabled:opacity-70"
+                      >
+                        {deletingLeadId === lead.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                        {deletingLeadId === lead.id ? 'Se sterge' : 'Sterge'}
+                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                  </motion.div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           )}
         </div>
