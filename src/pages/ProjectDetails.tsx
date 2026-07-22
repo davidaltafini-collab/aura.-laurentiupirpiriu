@@ -8,7 +8,7 @@ import { useSiteUrl } from '../hooks/useSiteUrl';
 import { useLocalizedPath } from '../hooks/useLocalizedPath';
 import { useHeroParallax } from '../hooks/useHeroParallax';
 import { projectTitle, projectDescription } from '../data';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import BrandLockup from '../components/BrandLockup';
@@ -29,6 +29,8 @@ export default function ProjectDetails() {
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [readyCoverImage, setReadyCoverImage] = useState<string | null>(null);
+  const swipeStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const suppressCloseRef = useRef(false);
 
   const fromArchive = location.state?.from === 'archive';
   const backLink = fromArchive ? lp('/archive') : `${lp('/')}#work`;
@@ -93,6 +95,61 @@ export default function ProjectDetails() {
   const currentIndex = projects.findIndex(p => p.id === id);
   const nextProject = projects[(currentIndex + 1) % projects.length];
 
+  const showPreviousLightboxImage = () => {
+    setLightboxIndex(current => current === null ? current : (current - 1 + project.gallery.length) % project.gallery.length);
+  };
+
+  const showNextLightboxImage = () => {
+    setLightboxIndex(current => current === null ? current : (current + 1) % project.gallery.length);
+  };
+
+  const handleLightboxPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse') return;
+
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    swipeStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      time: Date.now(),
+    };
+  };
+
+  const handleLightboxPointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+
+    if (!start || project.gallery.length < 2) return;
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    const horizontalSwipe = Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.25 && Date.now() - start.time < 900;
+
+    if (!horizontalSwipe) return;
+
+    suppressCloseRef.current = true;
+    event.stopPropagation();
+
+    if (dx < 0) {
+      showNextLightboxImage();
+    } else {
+      showPreviousLightboxImage();
+    }
+
+    window.setTimeout(() => {
+      suppressCloseRef.current = false;
+    }, 250);
+  };
+
+  const handleLightboxBackdropClick = () => {
+    if (suppressCloseRef.current) {
+      suppressCloseRef.current = false;
+      return;
+    }
+
+    setLightboxIndex(null);
+  };
+
   return (
     <div className="min-h-svh font-sans selection:bg-black selection:text-white bg-[#f8f8f7]">
       <Seo
@@ -125,7 +182,7 @@ export default function ProjectDetails() {
       </nav>
 
       {/* Hero */}
-      <section ref={heroRef} className="h-[calc(var(--vh,1svh)*100)] w-[95vw] mx-auto pt-[calc(var(--vh,1svh)*2.5)] relative">
+      <section ref={heroRef} className="h-[calc(var(--vh,1svh)*100)] w-[95vw] mx-auto pt-24 md:pt-32 relative">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -201,8 +258,13 @@ export default function ProjectDetails() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center backdrop-blur-sm"
-            onClick={() => setLightboxIndex(null)}
+            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center backdrop-blur-sm touch-none select-none"
+            onClick={handleLightboxBackdropClick}
+            onPointerDown={handleLightboxPointerDown}
+            onPointerUp={handleLightboxPointerUp}
+            onPointerCancel={() => {
+              swipeStartRef.current = null;
+            }}
           >
             <button
               className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-[101]"
@@ -217,7 +279,7 @@ export default function ProjectDetails() {
                   className="absolute left-6 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-[101]"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setLightboxIndex((lightboxIndex - 1 + project.gallery.length) % project.gallery.length);
+                    showPreviousLightboxImage();
                   }}
                 >
                   <ChevronLeft size={48} />
@@ -226,7 +288,7 @@ export default function ProjectDetails() {
                   className="absolute right-6 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-[101]"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setLightboxIndex((lightboxIndex + 1) % project.gallery.length);
+                    showNextLightboxImage();
                   }}
                 >
                   <ChevronRight size={48} />
