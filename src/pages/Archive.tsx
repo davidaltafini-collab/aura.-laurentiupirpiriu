@@ -51,6 +51,7 @@ export default function Archive() {
       <nav className="p-4 md:p-10 flex justify-between items-center bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
         <Link to={lp('/')} className="min-w-0 hover:opacity-60 transition-opacity">
           <BrandLockup
+            className="max-sm:flex-col max-sm:items-start max-sm:gap-0.5"
             markClassName="text-2xl sm:text-3xl md:text-5xl"
             signatureClassName="text-sm sm:text-xl md:text-3xl"
             suffix={<span className="hidden sm:inline text-gray-400 font-display font-light tracking-normal text-lg md:text-xl">{t('archive.kicker')}</span>}

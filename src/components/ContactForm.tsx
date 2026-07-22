@@ -14,26 +14,12 @@ interface FormState {
 
 const initialState: FormState = { name: '', email: '', phone: '', eventDate: '', message: '' };
 
-function formatEventDate(value: string, locale: string): string {
-  const [year, month, day] = value.split('-').map(Number);
-  if (!year || !month || !day) return value;
-  return new Intl.DateTimeFormat(locale === 'ro' ? 'ro-RO' : 'en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(year, month - 1, day));
-}
-
 export default function ContactForm() {
   const { t } = useTranslation();
   const locale = useLocale();
   const [form, setForm] = useState<FormState>(initialState);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const eventDateDisplay = form.eventDate
-    ? formatEventDate(form.eventDate, locale)
-    : t('contactForm.eventDateSelectPlaceholder');
-
   const update = (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
   };
@@ -131,25 +117,33 @@ export default function ContactForm() {
           onChange={update('phone')}
           className="w-full min-w-0 bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg"
         />
-        <label className="relative block w-full min-w-0">
-          <span
-            aria-hidden="true"
-            className={`pointer-events-none absolute inset-y-0 left-6 right-12 z-10 flex items-center text-base md:left-8 md:text-lg ${form.eventDate ? 'text-white' : 'text-gray-400'}`}
-          >
-            {eventDateDisplay}
-          </span>
-          {/* type="date" păstrează selectorul nativ Apple/iOS; textul vizibil de
-              deasupra ne permite să avem placeholder coerent cu restul formului. */}
+        <div className="relative w-full min-w-0">
+          {!form.eventDate && (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-6 right-12 z-10 flex items-center text-base text-gray-400 md:left-8 md:text-lg"
+            >
+              {t('contactForm.eventDateSelectPlaceholder')}
+            </span>
+          )}
           <input
             type="date"
             aria-label={t('contactForm.eventDateSelectPlaceholder')}
             title={t('contactForm.eventDatePlaceholder')}
+            placeholder={t('contactForm.eventDateSelectPlaceholder')}
             min={new Date().toISOString().split('T')[0]}
             value={form.eventDate}
+            onClick={(event) => {
+              try {
+                event.currentTarget.showPicker?.();
+              } catch {
+                // Native tap/focus still opens the picker on browsers without showPicker support.
+              }
+            }}
             onChange={update('eventDate')}
-            className="form-date-input w-full min-w-0 bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 text-transparent focus:text-transparent placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg [color-scheme:dark]"
+            className={`form-date-input w-full min-w-0 bg-white/10 border border-white/20 rounded-full px-6 py-3.5 md:px-8 md:py-4 placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-base md:text-lg [color-scheme:dark] ${form.eventDate ? 'text-white' : 'text-transparent'}`}
           />
-        </label>
+        </div>
       </div>
       <textarea
         placeholder={t('contactForm.messagePlaceholder')}

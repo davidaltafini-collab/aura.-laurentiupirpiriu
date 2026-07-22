@@ -82,6 +82,7 @@ export default function ProjectDetails() {
       <nav className="fixed top-0 left-0 right-0 z-50 p-4 md:p-10 flex justify-between items-center mix-blend-difference text-white">
         <Link to={lp('/')} className="min-w-0 hover:opacity-60 transition-opacity">
           <BrandLockup
+            className="max-sm:flex-col max-sm:items-start max-sm:gap-0.5"
             markClassName="text-2xl sm:text-3xl md:text-5xl"
             signatureClassName="text-sm sm:text-xl md:text-3xl"
           />

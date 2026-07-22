@@ -85,8 +85,8 @@ export default function FloatingAboutButton() {
               className="absolute inset-0 w-full h-full"
             >
               <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-                <path id="aboutButtonCirclePath" d="M 50, 50 m -40, 0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0" fill="none" />
-                <text fill="white" fontSize="7.25" fontWeight="bold" letterSpacing="0.11em" textLength="218" lengthAdjust="spacing" className="font-sans uppercase">
+                <path id="aboutButtonCirclePath" d="M 50, 50 m -42, 0 a 42,42 0 1,1 84,0 a 42,42 0 1,1 -84,0" fill="none" />
+                <text fill="white" fontSize="7.1" fontWeight="bold" letterSpacing="0" textLength="253" lengthAdjust="spacing" className="font-sans uppercase">
                   <textPath href="#aboutButtonCirclePath" startOffset="50%" textAnchor="middle">
                     ABOUT ME • LAURENTIU PIRPILIU •
                   </textPath>
@@ -95,7 +95,7 @@ export default function FloatingAboutButton() {
             </motion.div>
 
             {/* Center Avatar */}
-            <div className="absolute w-[56%] h-[56%] rounded-full bg-[#f4f4f5] overflow-hidden flex items-center justify-center z-10 pointer-events-none">
+            <div className="absolute left-1/2 top-1/2 z-10 h-[64%] w-[64%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f4f4f5] overflow-hidden pointer-events-none">
                <img
                   src="/laurentiu.png"
                   alt="Laurentiu"

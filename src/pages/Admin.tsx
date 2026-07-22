@@ -523,6 +523,7 @@ export default function Admin() {
       <nav className="p-4 md:p-10 flex justify-between items-center bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
         <Link to="/" className="min-w-0 hover:opacity-70 transition-opacity">
           <BrandLockup
+            className="max-sm:flex-col max-sm:items-start max-sm:gap-0.5"
             markClassName="text-xl md:text-2xl"
             signatureClassName="text-sm md:text-xl"
             suffix={<span className="text-gray-400 font-display font-light tracking-normal text-lg md:text-xl">Workspace</span>}

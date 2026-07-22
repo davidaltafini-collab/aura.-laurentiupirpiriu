@@ -73,7 +73,7 @@ export default function Login() {
         {/* Nav mobil */}
         <nav className="p-6 flex md:hidden justify-between items-center bg-white z-50">
           <Link to="/" className="hover:opacity-60 transition-opacity">
-            <BrandLockup markClassName="text-xl" signatureClassName="text-sm" />
+            <BrandLockup className="flex-col items-start gap-0.5" markClassName="text-xl" signatureClassName="text-sm" />
           </Link>
           <Link to="/" className="flex items-center gap-2 font-medium text-xs tracking-wide uppercase text-gray-500 hover:text-black transition-colors">
             <ArrowLeft size={16} /> Înapoi

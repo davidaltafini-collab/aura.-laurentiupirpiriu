@@ -41,25 +41,13 @@ body {
 }
 
 .form-date-input {
+  display: block;
   box-sizing: border-box;
+  width: 100%;
   max-width: 100%;
   min-width: 0;
-  caret-color: transparent;
-}
-
-.form-date-input::-webkit-date-and-time-value {
-  min-height: 1.5em;
-  text-align: left;
-  color: transparent;
-}
-
-.form-date-input::-webkit-datetime-edit,
-.form-date-input::-webkit-datetime-edit-fields-wrapper,
-.form-date-input::-webkit-datetime-edit-text,
-.form-date-input::-webkit-datetime-edit-month-field,
-.form-date-input::-webkit-datetime-edit-day-field,
-.form-date-input::-webkit-datetime-edit-year-field {
-  color: transparent;
+  -webkit-appearance: auto;
+  appearance: auto;
 }
 
 .form-date-input::-webkit-calendar-picker-indicator {
