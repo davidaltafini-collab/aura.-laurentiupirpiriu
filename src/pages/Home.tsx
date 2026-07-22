@@ -54,7 +54,7 @@ export default function Home() {
           <a href="#work" className="hover:opacity-60 transition-opacity">{t('nav.work')}</a>
           <a href="#contact" className="hover:opacity-60 transition-opacity">{t('nav.contact')}</a>
         </div>
-        <a href="#contact" className="shrink-0 bg-white text-black px-7 py-4 md:px-10 md:py-5 rounded-full font-semibold text-base md:text-lg tracking-wide uppercase hover:scale-105 transition-transform duration-300">
+        <a href="#contact" className="shrink-0 bg-white text-black px-5 py-3 md:px-10 md:py-5 rounded-full font-semibold text-sm md:text-lg tracking-wide uppercase hover:scale-105 transition-transform duration-300">
           {t('nav.bookNow')}
         </a>
       </nav>
