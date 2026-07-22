@@ -1,7 +1,26 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, Reorder, useDragControls } from 'motion/react';
+import { motion } from 'motion/react';
 import { Trash2, Plus, LogOut, Star, GripVertical, Save, Mail, Loader2, CheckCircle2, Circle, Undo } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Project } from '../data';
 import { useProjects } from '../hooks/useProjects';
 import { useAuth } from '../context/AuthContext';
@@ -15,55 +34,132 @@ import {
 import { compressImage } from '../lib/imageCompress';
 import { fetchLeads, updateLeadStatus, Lead } from '../lib/leads';
 
+// ─── Selector de dată: lună (RO) + an ────────────────────────────────────────
+// Câmpul `date` e un text afișat direct pe site (ex. „Septembrie 2026"), nu o
+// dată calendaristică precisă. Un `type="date"` ar sparge formatul și datele
+// existente, deci folosim două select-uri care produc exact același string.
+const RO_MONTHS = [
+  'Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie',
+  'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie',
+];
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: 11 }, (_, i) => CURRENT_YEAR - 4 + i);
+
+function parseProjectDate(value: string): { month: string; year: string } {
+  const match = value.trim().match(/^(\p{L}+)\s+(\d{4})$/u);
+  if (match && RO_MONTHS.includes(match[1])) return { month: match[1], year: match[2] };
+  return { month: '', year: '' };
+}
+
 function ProjectReorderItem({
   project,
   isSelected,
   onSelect,
   onToggleFeatured,
-  onDragEnd,
 }: {
   project: Project;
   isSelected: boolean;
   onSelect: () => void;
   onToggleFeatured: (e: React.MouseEvent, project: Project) => void;
-  onDragEnd: () => void;
 }) {
-  const dragControls = useDragControls();
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: project.id });
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
 
   return (
-    <Reorder.Item
-      value={project}
-      dragListener={false}
-      dragControls={dragControls}
-      onDragEnd={onDragEnd}
-      whileDrag={{ scale: 1.05, boxShadow: '0px 20px 40px rgba(0,0,0,0.1)', zIndex: 50, backgroundColor: '#ffffff', borderRadius: '2rem' }}
+    <div
+      ref={setNodeRef}
+      style={style}
       onClick={onSelect}
-      className={`text-left px-6 py-5 rounded-[2rem] transition-all duration-300 flex items-center gap-4 cursor-pointer select-none relative ${
+      className={`text-left px-6 py-5 rounded-[2rem] transition-colors duration-300 flex items-center gap-4 cursor-pointer select-none relative ${
         isSelected
-          ? 'bg-black text-white shadow-xl scale-[1.02]'
+          ? 'bg-black text-white shadow-xl'
           : 'bg-white text-gray-600 hover:bg-gray-100 shadow-sm'
-      }`}
+      } ${isDragging ? 'opacity-80 shadow-2xl' : ''}`}
     >
-      <div className="flex-1">
-        <div className="font-semibold text-lg">{project.titleRo}</div>
-        <div className="text-sm mt-1 text-gray-400">{project.location}</div>
+      <div className="flex-1 min-w-0">
+        <div className="font-semibold text-lg truncate">{project.titleRo}</div>
+        <div className="text-sm mt-1 text-gray-400 truncate">{project.location}</div>
       </div>
       <div className="flex flex-col gap-2 items-center text-gray-400">
         <button onClick={(e) => onToggleFeatured(e, project)} className={`hover:text-yellow-500 transition-colors ${project.featured ? 'text-yellow-400' : ''}`}>
           <Star size={18} fill={project.featured ? 'currentColor' : 'none'} />
         </button>
-        {/* touch-action:none e obligatoriu aici. Fără el, pe telefon browserul
-            interpretează gestul ca scroll de pagină și îl fură din mijlocul
-            drag-ului — de acolo venea reordonarea glitch-uită pe mobil.
-            Zona de atingere e mărită (p-3) ca să fie prinsă ușor cu degetul. */}
+        {/* Mânerul de drag. `touch-none` blochează scroll-ul doar când degetul e
+            pe mâner (zonă mică), ca reordonarea să fie fluidă pe telefon. */}
         <div
           className="cursor-grab active:cursor-grabbing opacity-50 hover:opacity-100 p-3 -m-1 touch-none"
-          onPointerDown={(e) => dragControls.start(e)}
+          {...attributes}
+          {...listeners}
         >
           <GripVertical size={20} />
         </div>
       </div>
-    </Reorder.Item>
+    </div>
+  );
+}
+
+function SortableGalleryItem({
+  img,
+  index,
+  isSelected,
+  onToggle,
+}: {
+  img: string;
+  index: number;
+  isSelected: boolean;
+  onToggle: (e: React.MouseEvent, index: number, img: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: img });
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  // Toată poza e trasabilă (drag) ȘI selectabilă (click). Pe touch, TouchSensor
+  // are delay: swipe = scroll, apăsare lungă = mută poza, tap = selectează.
+  // Copiii au pointer-events-none ca tap-ul/drag-ul să lovească mereu tile-ul.
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={(e) => onToggle(e, index, img)}
+      className={`group relative aspect-[4/5] rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 cursor-pointer select-none ${
+        isSelected ? 'ring-4 ring-black scale-[0.98]' : ''
+      } ${isDragging ? 'opacity-50 shadow-2xl' : ''}`}
+    >
+      <img
+        src={img}
+        alt={`Galerie ${index}`}
+        className={`w-full h-full object-cover transition-transform duration-500 pointer-events-none ${isSelected ? 'scale-105' : 'group-hover:scale-105'}`}
+      />
+      {/* Cerc gol / bifă plină, stil Apple Photos. Pe desktop apare la hover; pe
+          touch (fără hover) e mereu vizibil, ca să se știe că pozele sunt selectabile. */}
+      <div
+        className={`absolute top-4 right-4 z-10 transition-all duration-300 pointer-events-none ${
+          isSelected
+            ? 'opacity-100 scale-100'
+            : 'opacity-100 scale-100 md:opacity-0 md:scale-75 md:group-hover:opacity-100 md:group-hover:scale-100'
+        }`}
+      >
+        {isSelected ? (
+          <div className="bg-white rounded-full shadow-lg">
+            <CheckCircle2 size={32} className="fill-black text-white" />
+          </div>
+        ) : (
+          <div className="bg-black/20 text-white rounded-full backdrop-blur-sm border-2 border-white/50">
+            <Circle size={28} />
+          </div>
+        )}
+      </div>
+      <div className={`absolute inset-0 transition-colors duration-300 pointer-events-none ${isSelected ? 'bg-black/20' : 'bg-black/0 group-hover:bg-black/10'}`} />
+    </div>
   );
 }
 
@@ -80,9 +176,9 @@ const emptyDraft = {
 type Draft = typeof emptyDraft;
 
 // Toate câmpurile unui proiect trăiesc acum în draft: text, copertă ȘI galerie.
-// Orice modificare (editare text, upload, ștergere de poze) atinge doar draft-ul
-// local; nimic nu ajunge în baza de date până la Salvează. Așa există un singur
-// punct de commit (Save) și unul de anulare (Revert), fără confirmări per-acțiune.
+// Orice modificare (editare text, upload, ștergere, reordonare de poze) atinge
+// doar draft-ul local; nimic nu ajunge în baza de date până la Salvează. Așa
+// există un singur punct de commit (Save) și unul de anulare (Revert).
 function draftFromProject(p: Project): Draft {
   return {
     titleRo: p.titleRo,
@@ -107,15 +203,23 @@ export default function Admin() {
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
   const [savingOrder, setSavingOrder] = useState(false);
+  const [isDraggingFiles, setIsDraggingFiles] = useState(false);
 
-  // Selecție de poze (doar UI): indici în draft.gallery. Indici, nu URL-uri,
-  // pentru că galeria poate conține aceeași poză de două ori. `lastClicked` e
-  // ancora pentru selecția cu Shift (interval), ca în file explorer.
-  const [selectedPhotos, setSelectedPhotos] = useState<Set<number>>(new Set());
-  const [lastClicked, setLastClicked] = useState<number | null>(null);
+  // Selecție de poze (doar UI), pe URL — supraviețuiește reordonării, spre
+  // deosebire de indici. `lastClickedIndex` e ancora pentru selecția cu Shift.
+  const [selectedPhotos, setSelectedPhotos] = useState<Set<string>>(new Set());
+  const [lastClickedIndex, setLastClickedIndex] = useState<number | null>(null);
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
+
+  // Mouse: drag imediat după 5px. Touch: delay 200ms (swipe = scroll, apăsare
+  // lungă = drag), deci nu blocăm scroll-ul galeriei pe telefon.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -135,7 +239,7 @@ export default function Admin() {
   useEffect(() => {
     // Selecția aparține proiectului curent — se golește la schimbare.
     setSelectedPhotos(new Set());
-    setLastClicked(null);
+    setLastClickedIndex(null);
     if (selectedProject) {
       setDraft(draftFromProject(selectedProject));
     }
@@ -165,6 +269,15 @@ export default function Admin() {
       });
     }
   }, [activeTab]);
+
+  // Semnalează overlay-ul de drop când se trag fișiere din Explorer peste pagină.
+  useEffect(() => {
+    const onDragEnter = (e: DragEvent) => {
+      if (e.dataTransfer?.types?.includes('Files')) setIsDraggingFiles(true);
+    };
+    window.addEventListener('dragenter', onDragEnter);
+    return () => window.removeEventListener('dragenter', onDragEnter);
+  }, []);
 
   // Scrie tot draft-ul (text + copertă + galerie) într-un singur update.
   const commitDraft = useCallback(async () => {
@@ -200,7 +313,7 @@ export default function Admin() {
   const handleRevert = () => {
     if (selectedProject) setDraft(draftFromProject(selectedProject));
     setSelectedPhotos(new Set());
-    setLastClicked(null);
+    setLastClickedIndex(null);
   };
 
   // Auto-save la părăsire. Ref-ul ține mereu ultima stare, ca handler-ul de
@@ -208,9 +321,6 @@ export default function Admin() {
   const autoSaveRef = useRef({ dirty: false, commit: commitDraft });
   autoSaveRef.current = { dirty: isDirty, commit: commitDraft };
   useEffect(() => {
-    // Se declanșează când tot panoul de admin se demontează (logout, navigare
-    // în altă pagină a site-ului). Fetch-ul pornit aici se termină în fundal
-    // chiar dacă componenta dispare.
     return () => {
       if (autoSaveRef.current.dirty) {
         autoSaveRef.current.commit().catch(err => console.error('[admin] auto-save la ieșire:', err));
@@ -226,16 +336,16 @@ export default function Admin() {
     setSelectedProjectId(id);
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    if (files.length === 0 || !selectedProject) return;
+  // Compresie (doar dacă e necesar) + upload real Cloudinary, secvențial.
+  // Pozele urcate cu succes intră în draft (staged) — se scriu la Salvează.
+  const uploadFiles = async (files: File[]) => {
+    const images = files.filter(f => f.type.startsWith('image/'));
+    if (images.length === 0 || !selectedProject) return;
     setUploadingGallery(true);
-    setUploadProgress({ done: 0, total: files.length });
+    setUploadProgress({ done: 0, total: images.length });
     const uploaded: string[] = [];
     try {
-      // Secvențial, nu în paralel: pozele mari (compresie + upload) ar sufoca
-      // rețeaua telefonului dacă am porni zeci deodată.
-      for (const file of files) {
+      for (const file of images) {
         const compressed = await compressImage(file);
         const url = await uploadProjectImage(compressed);
         uploaded.push(url);
@@ -246,15 +356,17 @@ export default function Admin() {
       alert(`Upload-ul pozelor a eșuat.\n\n${msg}`);
       console.error('[admin] upload galerie:', err);
     } finally {
-      // Pozele urcate cu succes intră în draft (staged), chiar dacă una a eșuat
-      // la mijloc — nu pierdem munca deja făcută. Se scriu în DB la Salvează.
       if (uploaded.length > 0) {
         setDraft(d => ({ ...d, gallery: [...uploaded, ...d.gallery] }));
       }
       setUploadingGallery(false);
       setUploadProgress({ done: 0, total: 0 });
-      e.target.value = '';
     }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    await uploadFiles(Array.from(e.target.files ?? []));
+    e.target.value = '';
   };
 
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -275,34 +387,47 @@ export default function Admin() {
     }
   };
 
-  // Selecție de poze în stil Apple Photos: click pe poză o comută; Shift+click
-  // selectează tot intervalul de la ultima poză atinsă până la cea curentă.
-  const togglePhoto = (index: number, shiftKey: boolean) => {
-    setSelectedPhotos(prev => {
-      const next = new Set(prev);
-      if (shiftKey && lastClicked !== null) {
-        const from = Math.min(lastClicked, index);
-        const to = Math.max(lastClicked, index);
-        for (let k = from; k <= to; k++) next.add(k);
-      } else if (next.has(index)) {
-        next.delete(index);
-      } else {
-        next.add(index);
-      }
-      return next;
-    });
-    setLastClicked(index);
+  // Click pe poză o comută; Shift+click selectează tot intervalul de la ultima
+  // poză atinsă până la cea curentă (ca în file explorer).
+  const togglePhoto = (e: React.MouseEvent, index: number, img: string) => {
+    e.stopPropagation();
+    if (e.shiftKey && lastClickedIndex !== null) {
+      const from = Math.min(lastClickedIndex, index);
+      const to = Math.max(lastClickedIndex, index);
+      const range = draft.gallery.slice(from, to + 1);
+      setSelectedPhotos(prev => new Set([...prev, ...range]));
+    } else {
+      setSelectedPhotos(prev => {
+        const next = new Set(prev);
+        if (next.has(img)) next.delete(img);
+        else next.add(img);
+        return next;
+      });
+      setLastClickedIndex(index);
+    }
   };
 
   const clearSelection = () => {
     setSelectedPhotos(new Set());
-    setLastClicked(null);
+    setLastClickedIndex(null);
   };
 
   // Doar scoate pozele din draft (staged). Se aplică în DB abia la Salvează.
   const removeSelectedPhotos = () => {
-    setDraft(d => ({ ...d, gallery: d.gallery.filter((_, i) => !selectedPhotos.has(i)) }));
+    setDraft(d => ({ ...d, gallery: d.gallery.filter(url => !selectedPhotos.has(url)) }));
     clearSelection();
+  };
+
+  // Reordonare poze în galerie (staged) — se salvează la Salvează.
+  const handleGalleryDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setDraft(d => {
+      const oldIndex = d.gallery.indexOf(active.id as string);
+      const newIndex = d.gallery.indexOf(over.id as string);
+      if (oldIndex < 0 || newIndex < 0) return d;
+      return { ...d, gallery: arrayMove(d.gallery, oldIndex, newIndex) };
+    });
   };
 
   const handleDeleteProject = async () => {
@@ -327,23 +452,22 @@ export default function Admin() {
     await reload();
   };
 
-  // onReorder se declanșează de zeci de ori în timpul unui singur drag. Varianta
-  // veche scria în baza de date la FIECARE declanșare: zeci de seturi de update-uri
-  // paralele care se suprapuneau, iar un răspuns întârziat de la o poziție
-  // intermediară suprascria ordinea mai nouă. De acolo venea „una în locul
-  // celeilalte". Acum starea locală se mișcă fluid, iar baza de date se scrie
-  // o singură dată, la finalul gestului.
-  const handleReorder = (newOrder: Project[]) => {
+  // Reordonarea proiectelor se scrie în DB imediat (e o proprietate a listei,
+  // nu a draft-ului unui proiect). O singură scriere, la finalul gestului.
+  const handleProjectDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = projects.findIndex(p => p.id === active.id);
+    const newIndex = projects.findIndex(p => p.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const newOrder = arrayMove(projects, oldIndex, newIndex);
     setProjects(newOrder);
-  };
-
-  const persistOrder = async () => {
     setSavingOrder(true);
     try {
-      await reorderProjects(projects.map(p => p.id));
+      await reorderProjects(newOrder.map(p => p.id));
     } catch (err) {
       console.error('[admin] Salvarea ordinii a eșuat:', err);
-      alert('Nu am putut salva ordinea proiectelor. Se reîncarcă ordinea din baza de date.');
+      alert('Nu am putut salva ordinea proiectelor. Se reîncarcă din baza de date.');
       await reload();
     } finally {
       setSavingOrder(false);
@@ -359,8 +483,41 @@ export default function Admin() {
     }
   };
 
+  const draftDate = parseProjectDate(draft.date);
+  const setDatePart = (part: 'month' | 'year', value: string) => {
+    const next = { ...draftDate, [part]: value };
+    setDraft(d => ({ ...d, date: [next.month, next.year].filter(Boolean).join(' ') }));
+  };
+
   return (
     <div className="min-h-svh font-sans bg-[#f8f8f7] selection:bg-black selection:text-white pb-20">
+      {/* Overlay drag & drop fișiere — apare când tragi poze din Explorer */}
+      {isDraggingFiles && activeTab === 'projects' && selectedProject && (
+        <div
+          className="fixed inset-0 z-[100] bg-white/70 backdrop-blur-sm flex items-center justify-center"
+          onDragOver={(e) => e.preventDefault()}
+          onDragLeave={(e) => { e.preventDefault(); setIsDraggingFiles(false); }}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDraggingFiles(false);
+            uploadFiles(Array.from(e.dataTransfer.files));
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 10 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            className="pointer-events-none flex flex-col items-center gap-4 bg-white px-10 py-10 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-gray-100"
+          >
+            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center border-2 border-dashed border-gray-300">
+              <Plus size={32} className="text-gray-400" />
+            </div>
+            <h2 className="text-gray-800 text-2xl md:text-3xl font-display font-bold tracking-tight">
+              Lasă pozele aici
+            </h2>
+          </motion.div>
+        </div>
+      )}
+
       {/* Nav */}
       <nav className="p-4 md:p-10 flex justify-between items-center bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
         <Link to="/" className="font-display font-bold text-xl md:text-2xl tracking-tighter">
@@ -451,18 +608,21 @@ export default function Admin() {
             {loading ? (
               <div className="py-12 text-center text-gray-400">Se încarcă...</div>
             ) : (
-              <Reorder.Group axis="y" values={projects} onReorder={handleReorder} className="flex flex-col gap-3 mb-6">
-                {projects.map(project => (
-                  <ProjectReorderItem
-                    key={project.id}
-                    project={project}
-                    isSelected={selectedProjectId === project.id}
-                    onSelect={() => trySelect(project.id)}
-                    onToggleFeatured={toggleFeatured}
-                    onDragEnd={persistOrder}
-                  />
-                ))}
-              </Reorder.Group>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleProjectDragEnd}>
+                <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                  <div className="flex flex-col gap-3 mb-6">
+                    {projects.map(project => (
+                      <ProjectReorderItem
+                        key={project.id}
+                        project={project}
+                        isSelected={selectedProjectId === project.id}
+                        onSelect={() => trySelect(project.id)}
+                        onToggleFeatured={toggleFeatured}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
             <button
               onClick={handleCreateProject}
@@ -545,12 +705,24 @@ export default function Admin() {
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Dată</label>
-                      <input
-                        type="text"
-                        value={draft.date}
-                        onChange={e => setDraft(d => ({ ...d, date: e.target.value }))}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black transition-colors"
-                      />
+                      <div className="flex gap-3">
+                        <select
+                          value={draftDate.month}
+                          onChange={e => setDatePart('month', e.target.value)}
+                          className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black transition-colors"
+                        >
+                          <option value="">Luna</option>
+                          {RO_MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                        </select>
+                        <select
+                          value={draftDate.year}
+                          onChange={e => setDatePart('year', e.target.value)}
+                          className="w-32 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black transition-colors"
+                        >
+                          <option value="">An</option>
+                          {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
+                        </select>
+                      </div>
                     </div>
                   </div>
                   <div className="mb-6">
@@ -603,7 +775,7 @@ export default function Admin() {
                           </>
                         ) : (
                           <>
-                            <Plus size={20} /> Adaugă poze în galerie
+                            <Plus size={20} /> Adaugă poze <span className="hidden sm:inline">— sau trage-le aici</span>
                           </>
                         )}
                       </span>
@@ -630,53 +802,27 @@ export default function Admin() {
                   )}
                 </div>
 
-                {/* Gallery Grid — click pe poză o selectează (Shift = interval) */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  {draft.gallery.map((img, i) => {
-                    const isSelected = selectedPhotos.has(i);
-                    return (
-                      <div
-                        key={`${img}-${i}`}
-                        onClick={(e) => togglePhoto(i, e.shiftKey)}
-                        className={`group relative aspect-[4/5] rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer select-none ${
-                          isSelected ? 'ring-4 ring-black scale-[0.98]' : ''
-                        }`}
-                      >
-                        <img
-                          src={img}
-                          alt={`Galerie ${i}`}
-                          className={`w-full h-full object-cover transition-transform duration-500 ${isSelected ? 'scale-105' : 'group-hover:scale-105'}`}
+                {/* Gallery Grid — tap = selectează, apăsare lungă / drag = reordonează */}
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleGalleryDragEnd}>
+                  <SortableContext items={draft.gallery} strategy={rectSortingStrategy}>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                      {draft.gallery.map((img, i) => (
+                        <SortableGalleryItem
+                          key={img}
+                          img={img}
+                          index={i}
+                          isSelected={selectedPhotos.has(img)}
+                          onToggle={togglePhoto}
                         />
-                        {/* Cerc gol / bifă plină, stil Apple Photos. Pe desktop
-                            apare la hover; pe touch (fără hover) e mereu vizibil,
-                            ca să se știe că pozele sunt selectabile. */}
-                        <div
-                          className={`absolute top-4 right-4 z-10 transition-all duration-300 ${
-                            isSelected
-                              ? 'opacity-100 scale-100'
-                              : 'opacity-100 scale-100 md:opacity-0 md:scale-75 md:group-hover:opacity-100 md:group-hover:scale-100'
-                          }`}
-                        >
-                          {isSelected ? (
-                            <div className="bg-white rounded-full shadow-lg">
-                              <CheckCircle2 size={32} className="fill-black text-white" />
-                            </div>
-                          ) : (
-                            <div className="bg-black/20 text-white rounded-full backdrop-blur-sm border-2 border-white/50">
-                              <Circle size={28} />
-                            </div>
-                          )}
+                      ))}
+                      {draft.gallery.length === 0 && (
+                        <div className="col-span-full py-16 text-center text-gray-400 bg-white rounded-[2rem] border border-dashed border-gray-300">
+                          Nicio poză în galeria acestui proiect. Adaugă una mai sus.
                         </div>
-                        <div className={`absolute inset-0 transition-colors duration-300 ${isSelected ? 'bg-black/20' : 'bg-black/0 group-hover:bg-black/10'}`} />
-                      </div>
-                    );
-                  })}
-                  {draft.gallery.length === 0 && (
-                    <div className="col-span-full py-16 text-center text-gray-400 bg-white rounded-[2rem] border border-dashed border-gray-300">
-                      Nicio poză în galeria acestui proiect. Adaugă una mai sus.
+                      )}
                     </div>
-                  )}
-                </div>
+                  </SortableContext>
+                </DndContext>
               </motion.div>
             )}
           </div>
