@@ -91,6 +91,25 @@ export default function AboutMe() {
         </div>
       </section>
 
+      <section className="px-6 md:px-12 pb-20 md:pb-32">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="max-w-7xl mx-auto border-y border-black/10 py-8 md:py-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left"
+        >
+          <h2 className="font-display text-3xl md:text-5xl font-semibold tracking-tighter text-black">
+            {t('about.recommendedBy')}
+          </h2>
+          <img
+            src="/recommended-by.png"
+            alt={t('about.recommendedByAlt')}
+            className="h-28 w-28 md:h-36 md:w-36 rounded-full object-cover shadow-[0_18px_45px_-18px_rgba(0,0,0,0.45)] outline outline-1 outline-offset-[-1px] outline-black/10"
+          />
+        </motion.div>
+      </section>
+
       <Footer />
     </div>
   );
