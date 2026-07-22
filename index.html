@@ -20,8 +20,150 @@
     <meta name="twitter:title" content="CAPTUR. — Wedding & Drone Cinematography | Laurentiu Pirpiliu" />
     <meta name="twitter:description" content="CAPTUR. is Laurentiu Pirpiliu's wedding photography and cinematography studio — artistic films, including drone footage, for weddings in Romania and worldwide." />
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1600&auto=format&fit=crop" />
+    <style>
+      html.captur-loading,
+      html.captur-loading body {
+        min-height: 100%;
+        background: #050505;
+      }
+
+      #captur-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background: #050505;
+        color: #f8f8f7;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        pointer-events: auto;
+        transform: translateZ(0);
+      }
+
+      #captur-loader.is-hiding {
+        opacity: 0;
+        filter: blur(8px);
+        transform: scale(1.015);
+        pointer-events: none;
+        transition:
+          opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
+          filter 900ms cubic-bezier(0.22, 1, 0.36, 1),
+          transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .captur-loader__lockup {
+        display: flex;
+        align-items: baseline;
+        gap: clamp(0.45rem, 2vw, 1.25rem);
+        max-width: calc(100vw - 2rem);
+        white-space: nowrap;
+        transform: translateY(-4vh);
+      }
+
+      .captur-loader__mark {
+        font-size: clamp(3.1rem, 14vw, 8.5rem);
+        font-weight: 900;
+        line-height: 0.82;
+        letter-spacing: 0;
+        text-transform: uppercase;
+        animation: captur-loader-pop 560ms cubic-bezier(0.2, 0, 0, 1) both;
+      }
+
+      .captur-loader__signature {
+        font-family: Parisienne, "Brush Script MT", cursive;
+        font-size: clamp(1.45rem, 5vw, 4rem);
+        font-weight: 400;
+        line-height: 1;
+        opacity: 0;
+        transform: translateX(-1.6rem);
+        animation: captur-loader-signature 720ms cubic-bezier(0.22, 1, 0.36, 1) 360ms both;
+      }
+
+      @keyframes captur-loader-pop {
+        0% {
+          opacity: 0;
+          transform: scale(0.86) translateY(0.45rem);
+        }
+        58% {
+          opacity: 1;
+          transform: scale(1.035) translateY(0);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      @keyframes captur-loader-signature {
+        0% {
+          opacity: 0;
+          transform: translateX(-1.6rem);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #captur-loader,
+        #captur-loader.is-hiding,
+        .captur-loader__mark,
+        .captur-loader__signature {
+          animation: none;
+          transition: opacity 180ms ease-out;
+          filter: none;
+          transform: none;
+        }
+
+        .captur-loader__mark,
+        .captur-loader__signature {
+          opacity: 1;
+        }
+      }
+    </style>
+    <script>
+      document.documentElement.classList.add('captur-loading');
+    </script>
   </head>
   <body>
+    <div id="captur-loader" aria-hidden="true">
+      <div class="captur-loader__lockup">
+        <span class="captur-loader__mark">CAPTUR.</span>
+        <span class="captur-loader__signature">by Laurentiu Pirpiliu</span>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var loader = document.getElementById('captur-loader');
+        var started = Date.now();
+        var hidden = false;
+
+        function hideLoader() {
+          if (!loader || hidden) return;
+          hidden = true;
+          loader.classList.add('is-hiding');
+          document.documentElement.classList.remove('captur-loading');
+          setTimeout(function () {
+            if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+          }, 980);
+        }
+
+        function hideWhenReady() {
+          var remaining = Math.max(0, 1250 - (Date.now() - started));
+          setTimeout(hideLoader, remaining);
+        }
+
+        if (document.readyState === 'complete') {
+          hideWhenReady();
+        } else {
+          addEventListener('load', hideWhenReady, { once: true });
+        }
+
+        setTimeout(hideLoader, 5000);
+      })();
+    </script>
     <script>
       // Înălțime de viewport ÎNGHEȚATĂ (--vh = 1% din înălțime, măsurată o dată
       // la încărcare). Necesară pentru că pe Chrome/Firefox de iOS unitatea svh
